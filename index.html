@@ -650,14 +650,32 @@ function autoLoadReport() {
 function categorize(line) {
   const l = line.toLowerCase();
   const amt = parseInt((line.match(/\$(\d+)/)||['','0'])[1]);
-  if (l.includes('medical')) return { p: 1, reason: 'Medical debt — CFPB 2025 rules require removal under $500', badge: 'Easy win', color: 'green' };
-  if (l.includes('duplicate')) return { p: 1, reason: 'Duplicate listing — must be removed under FCRA', badge: 'Easy win', color: 'green' };
-  if (l.includes('collections') && amt < 500) return { p: 1, reason: 'Small collection — high chance of pay-for-delete or unverifiable', badge: 'Easy win', color: 'green' };
-  if (l.includes('collections') && amt >= 500 && amt < 1000) return { p: 2, reason: 'Mid-size collection — dispute accuracy + negotiate settlement', badge: 'Medium', color: 'amber' };
-  if (l.includes('late') && !l.includes('120') && !l.includes('90')) return { p: 2, reason: 'Late payment — goodwill letter or dispute if inaccurate reporting', badge: 'Medium', color: 'amber' };
-  if (l.includes('charged off')) return { p: 2, reason: 'Charge-off — dispute accuracy, then negotiate pay-for-delete', badge: 'Medium', color: 'amber' };
-  if (l.includes('collections') && amt >= 1000) return { p: 3, reason: 'Large collection — negotiate settlement or dispute methodology', badge: 'Complex', color: 'red' };
-  return { p: 3, reason: 'Complex item — requires documentation and possible legal escalation', badge: 'Complex', color: 'red' };
+  // Medical — CFPB 2025 automatic removal
+  if (l.includes('medical')) return { p: 1, reason: 'Medical debt — CFPB 2025 rules require removal', badge: 'Easy win', color: 'green', disputeType: 'medical' };
+  // Duplicate accounts
+  if (l.includes('duplicate')) return { p: 1, reason: 'Duplicate listing — must be removed under FCRA § 1681e(b)', badge: 'Easy win', color: 'green', disputeType: 'duplicate' };
+  // Already paid
+  if (l.includes('paid in full') || l.includes('paid, closed')) return { p: 1, reason: 'Paid account — demand accurate status or deletion', badge: 'Easy win', color: 'green', disputeType: 'paid' };
+  // Settled accounts
+  if (l.includes('settlement') || l.includes('paid in settlement')) return { p: 1, reason: 'Settled account — dispute remaining negative reporting', badge: 'Easy win', color: 'green', disputeType: 'settled' };
+  // Small collections under $500 — easy to challenge or unverifiable
+  if (l.includes('collection') && amt < 500) return { p: 1, reason: 'Small collection — unverifiable or negotiate pay-for-delete', badge: 'Easy win', color: 'green', disputeType: 'unverifiable' };
+  // Identity theft / not mine
+  if (l.includes('not mine') || l.includes('fraud') || l.includes('identity')) return { p: 1, reason: 'Not your account — dispute as identity theft under FCRA § 605B', badge: 'Easy win', color: 'green', disputeType: 'not-mine' };
+  // Late payments — goodwill or inaccuracy dispute
+  if (l.includes('late') && !l.includes('120') && !l.includes('90') && !l.includes('60')) return { p: 2, reason: 'Late payment — send goodwill letter first, then dispute if ignored', badge: 'Medium', color: 'amber', disputeType: 'goodwill' };
+  if (l.includes('late') && (l.includes('30') || l.includes('60'))) return { p: 2, reason: 'Recent late payment — dispute accuracy of dates and amounts', badge: 'Medium', color: 'amber', disputeType: 'inaccurate' };
+  // Mid-size collections — debt buyer = hard to verify original docs
+  if (l.includes('collection') && amt >= 500 && amt < 2000) return { p: 2, reason: 'Collection — debt buyer likely can't verify original docs, dispute as unverifiable', badge: 'Medium', color: 'amber', disputeType: 'unverifiable' };
+  // Charge-offs — dispute accuracy + verify if sold to collector
+  if (l.includes('charged off') || l.includes('charge off')) return { p: 2, reason: 'Charge-off — dispute balance accuracy and verification methodology', badge: 'Medium', color: 'amber', disputeType: 'unverifiable' };
+  // Repossession — dispute accuracy and any remaining balance
+  if (l.includes('repossess') || l.includes('repo')) return { p: 2, reason: 'Repossession — dispute deficiency balance accuracy', badge: 'Medium', color: 'amber', disputeType: 'inaccurate' };
+  // Large collections — complex negotiation needed
+  if (l.includes('collection') && amt >= 2000) return { p: 3, reason: 'Large collection — dispute methodology + consider settlement negotiation', badge: 'Complex', color: 'red', disputeType: 'unverifiable' };
+  // Statute of limitations — old debts
+  if (l.includes('120') || l.includes('150') || l.includes('180')) return { p: 3, reason: 'Severely delinquent — dispute accuracy and check statute of limitations', badge: 'Complex', color: 'red', disputeType: 'statute' };
+  return { p: 3, reason: 'Complex item — requires documentation and possible legal escalation', badge: 'Complex', color: 'red', disputeType: 'inaccurate' };
 }
 
 // ── ANALYZE ──
@@ -687,7 +705,7 @@ function analyzeReport() {
         <div class="account-sub">${a.status} · ${a.amount} — ${a.reason}</div>
       </div>
       <span class="badge badge-${a.color === 'green' ? 'green' : a.color === 'amber' ? 'amber' : 'red'}">${a.badge}</span>
-      <button class="btn btn-sm" onclick="prefill('${esc(a.creditor)}','${esc(a.acct)}','${esc(a.status)}','${esc(a.amount)}')">Draft letter</button>
+      <button class="btn btn-sm" onclick="prefill('${esc(a.creditor)}','${esc(a.acct)}','${esc(a.status)}','${esc(a.amount)}','${a.disputeType||""}')">Draft letter</button>
     </div>`).join('');
   document.getElementById('analysis-out').style.display = 'block';
 }
@@ -716,7 +734,7 @@ function buildQueue() {
           <div class="account-name">${a.creditor} <span style="color:var(--text3);font-family:var(--font-mono);font-size:12px">${a.acct}</span></div>
           <div class="account-sub">${a.status} · ${a.amount}</div>
         </div>
-        <button class="btn btn-sm" onclick="prefill('${esc(a.creditor)}','${esc(a.acct)}','${esc(a.status)}','${esc(a.amount)}');showSection('letters')">Draft letter →</button>
+        <button class="btn btn-sm" onclick="prefill('${esc(a.creditor)}','${esc(a.acct)}','${esc(a.status)}','${esc(a.amount)}','${a.disputeType||""}');showSection('letters')">Draft letter →</button>
       </div>`;
     });
     html += '</div>';
@@ -725,18 +743,24 @@ function buildQueue() {
 }
 
 // ── PREFILL LETTER ──
-function prefill(creditor, acct, status, amount) {
+function prefill(creditor, acct, status, amount, disputeType) {
   document.getElementById('l-creditor').value = creditor;
   document.getElementById('l-acct').value = acct;
   document.getElementById('l-balance').value = amount;
-  const s = status.toLowerCase();
-  let type = 'inaccurate';
-  if (s.includes('medical')) type = 'medical';
-  else if (s.includes('not mine')) type = 'not-mine';
-  else if (s.includes('paid')) type = 'paid';
-  else if (s.includes('duplicate')) type = 'duplicate';
-  else if (s.includes('charged off')) type = 'inaccurate';
-  else if (s.includes('collections')) type = 'unverifiable';
+  // Use smart disputeType from categorize if provided, otherwise fallback to keyword match
+  let type = disputeType || 'inaccurate';
+  if (!disputeType) {
+    const s = status.toLowerCase();
+    if (s.includes('medical')) type = 'medical';
+    else if (s.includes('not mine') || s.includes('fraud')) type = 'not-mine';
+    else if (s.includes('paid in full')) type = 'paid';
+    else if (s.includes('settlement')) type = 'settled';
+    else if (s.includes('duplicate')) type = 'duplicate';
+    else if (s.includes('repossess')) type = 'inaccurate';
+    else if (s.includes('charged off') || s.includes('collection')) type = 'unverifiable';
+    else if (s.includes('late') && (s.includes('30') || s.includes('60'))) type = 'inaccurate';
+    else if (s.includes('late')) type = 'goodwill';
+  }
   document.getElementById('l-type').value = type;
 }
 
