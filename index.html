@@ -296,7 +296,7 @@ select option{background:var(--bg3)}
       <div class="tip-box" style="font-size:12px">Format: <strong>Creditor, Account#, Balance, Status</strong> &mdash; one per line</div>
       <textarea id="report-input" placeholder="LVNV Funding, #8834, $450, Collections&#10;Capital One, #4521, $1200, Collections&#10;Chase, #5511, $0, Late Payment (2x)&#10;Citibank, #2210, $2100, Charged Off&#10;Medical Bill, #M-901, $340, Collections" style="min-height:100px"></textarea>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="analyzeReport()" id="analyze-btn">&#9889; Analyze My Report &#8594;</button>
+        <button class="btn btn-primary" onclick="analyzeReport()" id="analyze-btn">Analyze Report &#8594;</button>
         <button class="btn btn-sm" onclick="loadSample()">Load sample</button>
       </div>
     </div>    </div>
@@ -563,7 +563,6 @@ let currentLetter = '';
 document.getElementById('log-date').valueAsDate = new Date();
 syncPersonalInfo();
 renderLog();
-autoLoadReport();
 
 // ── NAV ──
 function showSection(id) {
@@ -612,34 +611,6 @@ function loadSample() {
     'LVNV Funding,#8834,$450,Collections\nCapital One,#4521,$1200,Collections\nMidland Credit,#0012,$800,Collections\nChase,#5511,$0,Late Payment (2x)\nCitibank,#2210,$2100,Charged Off\nMedical Bill,#M-901,$340,Collections\nStudent Loan,#SL-44,$8500,Late 120 days\nPortfolio Recovery,#7721,$230,Collections';
   document.getElementById('score-input').value = 540;
   updateScoreDisplay();
-}
-
-// Auto-load Makisha's real report data on page load
-function autoLoadReport() {
-  const accounts = [
-    'Spring Oaks Capital LLC,#110712XXX,$623,Collections',
-    'Midland Credit Management,#328590XXX,$753,Collections',
-    'Kikoff Lending LLC,#CLXXXX,$420,Late Payment 60 days',
-    'Merrick Bank Corp,#546316XXXXXX,$1645,Charged Off',
-    'Mission Lane TAB Bank,#431503XXXXXX,$1624,Charged Off',
-    'Affirm Inc,#MPDUTJXX,$0,Charged Off - Paid in Settlement',
-    'NCB Management Service,#101073XXXX,$12456,Collections',
-    'Exeter Finance LLC,#680681XXXXXX,$0,Charged Off - Repossession',
-    'OneMain,#719322XXXXXX,$0,Charged Off - Paid in Settlement'
-  ].join('\n');
-
-  document.getElementById('report-input').value = accounts;
-  document.getElementById('score-input').value = 561;
-  document.getElementById('your-name').value = 'Makisha Stiles';
-  document.getElementById('your-addr').value = '5000 Macland Rd, Powder Springs, GA 30127';
-  document.getElementById('your-dob').value = '01/01/1983';
-  document.getElementById('l-name').value = 'Makisha Stiles';
-  document.getElementById('l-addr').value = '5000 Macland Rd, Powder Springs, GA 30127';
-  updateScoreDisplay();
-
-  // Show a welcome message
-  document.getElementById('upload-status').style.display = 'block';
-  document.getElementById('upload-status').innerHTML = '<div class="upload-success"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,8 6,11 13,4"/></svg> Your Experian report from May 4, 2026 has been pre-loaded! Review your accounts below then click <strong>Analyze Report</strong>.</div>';
 }
 
 // ── CATEGORIZE ──
@@ -827,8 +798,7 @@ REQUIREMENTS:
 Output ONLY the letter text, no explanations or preamble. Start with the consumer's name and address.`;
 
   try {
-    const PROXY = 'https://muddy-frost-3757.trustcircleenterprise.workers.dev/';
-    const res = await fetch(PROXY, {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
       body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] })
@@ -1048,51 +1018,19 @@ async function processFile(file) {
   document.getElementById('analyze-btn').disabled = true;
 
   try {
-    let messageContent = [];
+    const base64 = await fileToBase64(file);
+    const mediaType = file.type;
 
-    if (isPDF) {
-      // Render PDF pages to images using canvas, then send as images
-      const base64pdf = await fileToBase64(file);
-      const pdfData = atob(base64pdf);
-      const pdfBytes = new Uint8Array(pdfData.length);
-      for (let i = 0; i < pdfData.length; i++) pdfBytes[i] = pdfData.charCodeAt(i);
-
-      // Load pdf.js from CDN
-      if (!window.pdfjsLib) {
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-      }
-
-      const pdf = await window.pdfjsLib.getDocument({ data: pdfBytes }).promise;
-      const numPages = Math.min(pdf.numPages, 6); // max 6 pages
-      statusEl.innerHTML = `<div class="upload-loading"><div class="dot-flashing"></div> Converting ${numPages} page(s) to images…</div>`;
-
-      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale: 1.5 });
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d');
-        await page.render({ canvasContext: ctx, viewport }).promise;
-        const imgBase64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
-        messageContent.push({
-          type: 'image',
-          source: { type: 'base64', media_type: 'image/jpeg', data: imgBase64 }
-        });
-      }
-    } else {
-      // Regular image
-      const base64 = await fileToBase64(file);
-      messageContent.push({
-        type: 'image',
-        source: { type: 'base64', media_type: file.type, data: base64 }
-      });
-    }
-
-    messageContent.push({
-      type: 'text',
-      text: `You are a credit report analyst. Carefully read this credit report and extract ALL negative accounts including: collections, charge-offs, late payments, judgments, liens, repossessions, and bankruptcies.
+    const messages = [{
+      role: 'user',
+      content: [
+        {
+          type: isImage ? 'image' : 'document',
+          source: { type: 'base64', media_type: mediaType, data: base64 }
+        },
+        {
+          type: 'text',
+          text: `You are a credit report analyst. Carefully read this credit report and extract ALL negative accounts including: collections, charge-offs, late payments, judgments, liens, repossessions, and bankruptcies.
 
 For each negative account found, output it on its own line in EXACTLY this format:
 Creditor Name, #AccountNumber, $Balance, Status
@@ -1106,19 +1044,14 @@ Rules:
 - Output ONLY the formatted lines, nothing else — no headers, no explanations, no extra text
 
 If you cannot read the document or find no negative items, output: NO_NEGATIVES_FOUND`
-    });
+        }
+      ]
+    }];
 
-    statusEl.innerHTML = '<div class="upload-loading"><div class="dot-flashing"></div> AI is analyzing your credit report…</div>';
-
-    const PROXY = 'https://muddy-frost-3757.trustcircleenterprise.workers.dev/';
-    const res = await fetch(PROXY, {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 2000, messages: [{ role: 'user', content: messageContent }] })
+      headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 2000, messages })
     });
 
     const data = await res.json();
@@ -1133,24 +1066,12 @@ If you cannot read the document or find no negative items, output: NO_NEGATIVES_
         statusEl.innerHTML = `<div class="upload-success"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,8 6,11 13,4"/></svg> Found <strong>${count} negative account${count !== 1 ? 's' : ''}</strong> — review below then click Analyze.</div>`;
       }
     } else {
-      const errMsg = data.error ? data.error.message : 'Unknown error';
-      statusEl.innerHTML = `<div class="upload-error">Could not read the file: ${errMsg}. Try a clearer image or paste accounts manually.</div>`;
+      statusEl.innerHTML = '<div class="upload-error">Could not read the file. Try a clearer image or paste accounts manually.</div>';
     }
   } catch (err) {
-    statusEl.innerHTML = '<div class="upload-error">Error: ' + err.message + '. Try saving as JPG and uploading that instead.</div>';
+    statusEl.innerHTML = '<div class="upload-error">Error reading file: ' + err.message + '</div>';
   }
   document.getElementById('analyze-btn').disabled = false;
-}
-
-function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
-    const s = document.createElement('script');
-    s.src = src;
-    s.onload = resolve;
-    s.onerror = reject;
-    document.head.appendChild(s);
-  });
 }
 
 function fileToBase64(file) {
