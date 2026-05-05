@@ -210,16 +210,7 @@ select option{background:var(--bg3)}
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
-<div id="login-screen" style="position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center">
-  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-lg);padding:2.5rem;width:340px;text-align:center">
-    <div style="font-family:var(--font-display);font-size:1.8rem;margin-bottom:6px">ScoreBoss</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:2rem;letter-spacing:0.05em;text-transform:uppercase">ScoreBoss is Private</div>
-    <input type="password" id="login-pass" placeholder="Enter your password" style="text-align:center;margin-bottom:12px" onkeydown="if(event.key==='Enter')checkLogin()" />
-    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="checkLogin()">Enter Dashboard →</button>
-    <div id="login-err" style="color:var(--red);font-size:12px;margin-top:10px;display:none">Incorrect password. Try again.</div>
 
-  </div>
 </div>
 
 <div class="shell">
@@ -1414,29 +1405,7 @@ async function mailLetter() {
 }
 
 
-// ── LOGIN ──
-const PASS = 'dripsuccess2024';
-function checkLogin() {
-  const entered = document.getElementById('login-pass').value.trim();
-  const errEl = document.getElementById('login-err');
-  if (entered === PASS) {
-    localStorage.setItem('ds_auth', '1');
-    document.getElementById('login-screen').style.display = 'none';
-    if (errEl) errEl.style.display = 'none';
-  } else {
-    if (errEl) errEl.style.display = 'block';
-    document.getElementById('login-pass').value = '';
-    document.getElementById('login-pass').focus();
-  }
-}
 
-// Auto-check if already authenticated
-(function() {
-  if (localStorage.getItem('ds_auth') === '1') {
-    const ls = document.getElementById('login-screen');
-    if (ls) ls.style.display = 'none';
-  }
-})();
 
 // ── CLIENTS ──
 let clients = JSON.parse(localStorage.getItem('ds_clients') || '[]');
