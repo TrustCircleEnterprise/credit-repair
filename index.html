@@ -40,8 +40,12 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 /* LAYOUT */
 .shell{display:flex;min-height:100vh;position:relative;z-index:1}
-nav{width:200px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
-main{margin-left:200px;flex:1;padding:2rem;min-width:0;overflow-x:hidden}
+nav{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto;transition:transform 0.25s ease}
+nav.collapsed{transform:translateX(-220px)}
+main{margin-left:220px;flex:1;padding:2rem;min-width:0;overflow-x:hidden;transition:margin-left 0.25s ease}
+main.expanded{margin-left:0}
+.nav-toggle{position:fixed;top:12px;left:228px;z-index:200;background:var(--surface);border:1px solid var(--border2);border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:left 0.25s ease;color:var(--text2)}
+.nav-toggle.collapsed{left:8px}
 
 /* NAV */
 .nav-logo{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid var(--border)}
@@ -206,9 +210,9 @@ select option{background:var(--bg3)}
 </head>
 <body>
 <div class="shell">
-
+<button class="nav-toggle" id="nav-toggle" onclick="toggleNav()" title="Toggle sidebar">&#9776;</button>
 <!-- SIDEBAR NAV -->
-<nav>
+<nav id="main-nav">
   <div class="nav-logo">
     <div class="nav-logo-mark">Credit Repair</div>
     <div class="nav-logo-sub">Dispute Dashboard</div>
@@ -1160,6 +1164,18 @@ function fileToBase64(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+
+// ── SIDEBAR TOGGLE ──
+function toggleNav() {
+  const nav = document.getElementById('main-nav');
+  const main = document.querySelector('main');
+  const btn = document.getElementById('nav-toggle');
+  nav.classList.toggle('collapsed');
+  main.classList.toggle('expanded');
+  btn.classList.toggle('collapsed');
+  btn.innerHTML = nav.classList.contains('collapsed') ? '&#9776;' : '&#9776;';
 }
 
 </script>
