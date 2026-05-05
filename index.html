@@ -756,7 +756,7 @@ function categorize(line) {
   if (l.includes('late') && !l.includes('120') && !l.includes('90') && !l.includes('60')) return { p: 2, reason: 'Late payment — send goodwill letter first, then dispute if ignored', badge: 'Medium', color: 'amber', disputeType: 'goodwill' };
   if (l.includes('late') && (l.includes('30') || l.includes('60'))) return { p: 2, reason: 'Recent late payment — dispute accuracy of dates and amounts', badge: 'Medium', color: 'amber', disputeType: 'inaccurate' };
   // Mid-size collections — debt buyer = hard to verify original docs
-  if (l.includes('collection') && amt >= 500 && amt < 2000) return { p: 2, reason: 'Collection — debt buyer likely can't verify original docs, dispute as unverifiable', badge: 'Medium', color: 'amber', disputeType: 'unverifiable' };
+  if (l.includes('collection') && amt >= 500 && amt < 2000) return { p: 2, reason: 'Collection — debt buyer likely cannot verify original docs, dispute as unverifiable', badge: 'Medium', color: 'amber', disputeType: 'unverifiable' };
   // Charge-offs — dispute accuracy + verify if sold to collector
   if (l.includes('charged off') || l.includes('charge off')) return { p: 2, reason: 'Charge-off — dispute balance accuracy and verification methodology', badge: 'Medium', color: 'amber', disputeType: 'unverifiable' };
   // Repossession — dispute accuracy and any remaining balance
