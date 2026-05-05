@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+import os
+
+html = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -608,7 +610,7 @@ function syncPersonalInfo() {
 // ── SAMPLE ──
 function loadSample() {
   document.getElementById('report-input').value =
-    'LVNV Funding,#8834,$450,Collections\nCapital One,#4521,$1200,Collections\nMidland Credit,#0012,$800,Collections\nChase,#5511,$0,Late Payment (2x)\nCitibank,#2210,$2100,Charged Off\nMedical Bill,#M-901,$340,Collections\nStudent Loan,#SL-44,$8500,Late 120 days\nPortfolio Recovery,#7721,$230,Collections';
+    'LVNV Funding,#8834,$450,Collections\\nCapital One,#4521,$1200,Collections\\nMidland Credit,#0012,$800,Collections\\nChase,#5511,$0,Late Payment (2x)\\nCitibank,#2210,$2100,Charged Off\\nMedical Bill,#M-901,$340,Collections\\nStudent Loan,#SL-44,$8500,Late 120 days\\nPortfolio Recovery,#7721,$230,Collections';
   document.getElementById('score-input').value = 540;
   updateScoreDisplay();
 }
@@ -616,7 +618,7 @@ function loadSample() {
 // ── CATEGORIZE ──
 function categorize(line) {
   const l = line.toLowerCase();
-  const amt = parseInt((line.match(/\$(\d+)/)||['','0'])[1]);
+  const amt = parseInt((line.match(/\\$(\\d+)/)||['','0'])[1]);
   if (l.includes('medical')) return { p: 1, reason: 'Medical debt — CFPB 2025 rules require removal under $500', badge: 'Easy win', color: 'green' };
   if (l.includes('duplicate')) return { p: 1, reason: 'Duplicate listing — must be removed under FCRA', badge: 'Easy win', color: 'green' };
   if (l.includes('collections') && amt < 500) return { p: 1, reason: 'Small collection — high chance of pay-for-delete or unverifiable', badge: 'Easy win', color: 'green' };
@@ -629,7 +631,7 @@ function categorize(line) {
 
 // ── ANALYZE ──
 function analyzeReport() {
-  const lines = document.getElementById('report-input').value.split('\n').filter(l => l.trim());
+  const lines = document.getElementById('report-input').value.split('\\n').filter(l => l.trim());
   if (!lines.length) return;
   accounts = lines.map((line, i) => {
     const parts = line.split(',').map(s => s.trim());
@@ -659,7 +661,7 @@ function analyzeReport() {
   document.getElementById('analysis-out').style.display = 'block';
 }
 
-function esc(s) { return (s||'').replace(/'/g, "\\'"); }
+function esc(s) { return (s||'').replace(/'/g, "\\\\'"); }
 
 // ── DISPUTE QUEUE ──
 function buildQueue() {
@@ -745,10 +747,10 @@ async function generateAILetter() {
   const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
   const bureauAddresses = {
-    'All three bureaus (separate letters)': 'Equifax Information Services LLC, P.O. Box 740256, Atlanta, GA 30374\n(Also send identical letters to: Experian P.O. Box 4500 Allen TX 75013 · TransUnion P.O. Box 2000 Chester PA 19016)',
-    'Equifax': 'Equifax Information Services LLC\nP.O. Box 740256\nAtlanta, GA 30374',
-    'Experian': 'Experian\nP.O. Box 4500\nAllen, TX 75013',
-    'TransUnion': 'TransUnion LLC Consumer Dispute Center\nP.O. Box 2000\nChester, PA 19016'
+    'All three bureaus (separate letters)': 'Equifax Information Services LLC, P.O. Box 740256, Atlanta, GA 30374\\n(Also send identical letters to: Experian P.O. Box 4500 Allen TX 75013 · TransUnion P.O. Box 2000 Chester PA 19016)',
+    'Equifax': 'Equifax Information Services LLC\\nP.O. Box 740256\\nAtlanta, GA 30374',
+    'Experian': 'Experian\\nP.O. Box 4500\\nAllen, TX 75013',
+    'TransUnion': 'TransUnion LLC Consumer Dispute Center\\nP.O. Box 2000\\nChester, PA 19016'
   };
 
   const card = document.getElementById('letter-card');
@@ -808,7 +810,7 @@ Output ONLY the letter text, no explanations or preamble. Start with the consume
       currentLetter = data.content[0].text;
       body.textContent = currentLetter;
     } else {
-      body.textContent = 'Error generating letter. Check your API key and try again.\n\n' + JSON.stringify(data);
+      body.textContent = 'Error generating letter. Check your API key and try again.\\n\\n' + JSON.stringify(data);
     }
   } catch (e) {
     body.textContent = buildFallbackLetter(name, addr, ssn, dob, today, creditor, acct, balance, type, bureau, bureauAddresses[bureau], context);
@@ -846,7 +848,7 @@ I am writing pursuant to the Fair Credit Reporting Act (FCRA), 15 U.S.C. § 1681
 
 GROUNDS FOR DISPUTE:
 ${reasons[type] || reasons['inaccurate']}
-${context ? '\nADDITIONAL INFORMATION:\n' + context : ''}
+${context ? '\\nADDITIONAL INFORMATION:\\n' + context : ''}
 
 LEGAL DEMANDS:
 Pursuant to 15 U.S.C. § 1681i(a)(1), you are required to conduct a reasonable investigation of this dispute within 30 days of receipt of this letter. During this investigation, you must:
@@ -1062,7 +1064,7 @@ If you cannot read the document or find no negative items, output: NO_NEGATIVES_
         statusEl.innerHTML = '<div class="upload-success"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,8 6,11 13,4"/></svg> Report read — no negative accounts found! Great news.</div>';
       } else {
         document.getElementById('report-input').value = text;
-        const count = text.split('\n').filter(l => l.trim()).length;
+        const count = text.split('\\n').filter(l => l.trim()).length;
         statusEl.innerHTML = `<div class="upload-success"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,8 6,11 13,4"/></svg> Found <strong>${count} negative account${count !== 1 ? 's' : ''}</strong> — review below then click Analyze.</div>`;
       }
     } else {
@@ -1086,3 +1088,9 @@ function fileToBase64(file) {
 </script>
 </body>
 </html>
+"""
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html)
+
+print("index.html written successfully!")
