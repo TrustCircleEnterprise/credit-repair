@@ -1,0 +1,1173 @@
+html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Repair Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --bg2: #111827;
+  --bg3: #1a2235;
+  --surface: #1e2d40;
+  --surface2: #243347;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0f4ff;
+  --text2: #8b9dc3;
+  --text3: #5a7099;
+  --accent: #4f8ef7;
+  --accent2: #7bb3ff;
+  --green: #22c97a;
+  --green2: #1a9960;
+  --amber: #f5a623;
+  --red: #f25757;
+  --purple: #a78bfa;
+  --teal: #2dd4bf;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'Instrument Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --r: 10px;
+  --r-lg: 16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* BACKGROUND */
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(79,142,247,0.08) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(34,201,122,0.05) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* LAYOUT */
+.shell{display:flex;min-height:100vh;position:relative;z-index:1}
+nav{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+main{margin-left:220px;flex:1;padding:2rem;max-width:1100px}
+
+/* NAV */
+.nav-logo{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid var(--border)}
+.nav-logo-mark{font-family:var(--font-display);font-size:1.4rem;color:var(--text);letter-spacing:-0.02em}
+.nav-logo-sub{font-size:11px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-top:2px}
+.nav-links{padding:1rem 0.75rem;flex:1;display:flex;flex-direction:column;gap:2px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);transition:all 0.15s;border:none;background:none;width:100%;text-align:left}
+.nav-link:hover{background:var(--surface);color:var(--text)}
+.nav-link.active{background:rgba(79,142,247,0.15);color:var(--accent2);border:1px solid rgba(79,142,247,0.2)}
+.nav-link .icon{width:16px;height:16px;opacity:0.7;flex-shrink:0}
+.nav-link.active .icon{opacity:1}
+.nav-score-card{margin:0.75rem;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:1rem}
+.nav-score-num{font-family:var(--font-display);font-size:2rem;color:var(--text);line-height:1}
+.nav-score-lbl{font-size:11px;color:var(--text3);margin-top:4px}
+.score-pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(245,166,35,0.15);color:var(--amber);margin-top:6px;font-weight:500}
+
+/* SECTIONS */
+.section{display:none}
+.section.active{display:block}
+.page-header{margin-bottom:2rem}
+.page-title{font-family:var(--font-display);font-size:2rem;letter-spacing:-0.02em;color:var(--text);line-height:1.2}
+.page-sub{font-size:14px;color:var(--text2);margin-top:6px}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.25rem}
+.card-title{font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-bottom:1rem}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.25rem;position:relative;overflow:hidden}
+.metric-card::before{content:'';position:absolute;inset:0;opacity:0.03;background:linear-gradient(135deg,white,transparent)}
+.metric-num{font-family:var(--font-display);font-size:2rem;line-height:1;margin-bottom:4px}
+.metric-lbl{font-size:12px;color:var(--text3)}
+.metric-card.green .metric-num{color:var(--green)}
+.metric-card.amber .metric-num{color:var(--amber)}
+.metric-card.red .metric-num{color:var(--red)}
+.metric-card.blue .metric-num{color:var(--accent2)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.badge-red{background:rgba(242,87,87,0.15);color:var(--red);border:1px solid rgba(242,87,87,0.25)}
+.badge-amber{background:rgba(245,166,35,0.15);color:var(--amber);border:1px solid rgba(245,166,35,0.25)}
+.badge-green{background:rgba(34,201,122,0.15);color:var(--green);border:1px solid rgba(34,201,122,0.25)}
+.badge-blue{background:rgba(79,142,247,0.15);color:var(--accent2);border:1px solid rgba(79,142,247,0.25)}
+.badge-purple{background:rgba(167,139,250,0.15);color:var(--purple);border:1px solid rgba(167,139,250,0.25)}
+.badge-gray{background:rgba(255,255,255,0.06);color:var(--text2);border:1px solid var(--border)}
+
+/* FORM */
+label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;font-weight:500;letter-spacing:0.03em}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:9px 12px;color:var(--text);font-size:14px;font-family:var(--font-body);outline:none;transition:border-color 0.15s;margin-bottom:12px}
+input:focus,select:focus,textarea:focus{border-color:rgba(79,142,247,0.5);box-shadow:0 0 0 3px rgba(79,142,247,0.08)}
+textarea{min-height:100px;resize:vertical;line-height:1.6}
+select option{background:var(--bg3)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text);font-size:13px;font-family:var(--font-body);cursor:pointer;transition:all 0.15s;font-weight:500}
+.btn:hover{background:var(--surface);border-color:var(--border2)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:#3a7de8;border-color:#3a7de8}
+.btn-green{background:var(--green2);border-color:var(--green);color:#fff}
+.btn-green:hover{background:#158050}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* TABLE / LIST */
+.account-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.account-row:last-child{border-bottom:none}
+.account-num{font-size:12px;color:var(--text3);font-family:var(--font-mono);min-width:24px}
+.account-info{flex:1}
+.account-name{font-size:14px;font-weight:500;color:var(--text)}
+.account-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.priority-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-red{background:var(--red)}
+.dot-amber{background:var(--amber)}
+.dot-green{background:var(--green)}
+
+/* LETTER */
+.letter-output{background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);padding:1.5rem;font-family:var(--font-mono);font-size:12.5px;line-height:1.8;color:var(--text2);white-space:pre-wrap;max-height:420px;overflow-y:auto}
+.letter-output.generating{opacity:0.5;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.5}50%{opacity:0.8}}
+
+/* SCORE BAR */
+.score-track{background:var(--bg3);border-radius:20px;height:8px;position:relative;overflow:hidden;margin:8px 0}
+.score-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--red),var(--amber),var(--green));transition:width 0.8s cubic-bezier(0.4,0,0.2,1)}
+
+/* LOG */
+.log-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.log-row:last-child{border-bottom:none}
+.log-info{flex:1}
+.log-name{font-size:13px;font-weight:500}
+.log-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.due-chip{font-size:11px;color:var(--amber);background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);padding:2px 8px;border-radius:20px;white-space:nowrap}
+
+/* CHECKLIST */
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.check-item:last-child{border-bottom:none}
+.check-item input[type=checkbox]{width:16px;height:16px;margin-top:2px;accent-color:var(--accent);flex-shrink:0;margin-bottom:0}
+.check-text{font-size:13px;color:var(--text);line-height:1.5}
+.check-sub{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+
+/* TIP BOX */
+.tip-box{background:rgba(79,142,247,0.08);border:1px solid rgba(79,142,247,0.2);border-radius:var(--r);padding:12px 14px;font-size:13px;color:var(--accent2);line-height:1.6;margin-bottom:1rem}
+.warn-box{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);border-radius:var(--r);padding:12px 14px;font-size:13px;color:var(--amber);line-height:1.6;margin-bottom:1rem}
+
+/* WAVE */
+.wave-header{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin:1.25rem 0 0.5rem;display:flex;align-items:center;gap:8px}
+.wave-line{flex:1;height:1px;background:var(--border)}
+
+/* FACTOR ROW */
+.factor-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.factor-row:last-child{border-bottom:none}
+.factor-info{flex:1}
+.factor-name{font-size:13px;font-weight:500}
+.factor-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.factor-bar-wrap{width:80px;background:var(--bg3);border-radius:20px;height:4px}
+.factor-bar{height:4px;border-radius:20px;background:var(--accent)}
+
+/* LOADING */
+.ai-loading{display:flex;align-items:center;gap:10px;padding:1.5rem;color:var(--text2);font-size:13px}
+.dot-flashing{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:dotFlash 1.4s infinite linear;position:relative}
+.dot-flashing::before,.dot-flashing::after{content:'';position:absolute;top:0;width:8px;height:8px;border-radius:50%;background:var(--accent);animation:dotFlash 1.4s infinite linear}
+.dot-flashing::before{left:-14px;animation-delay:-0.32s}
+.dot-flashing::after{left:14px;animation-delay:0.32s}
+@keyframes dotFlash{0%,80%,100%{opacity:0.2}40%{opacity:1}}
+
+/* API KEY */
+.api-banner{background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.25);border-radius:var(--r);padding:12px 14px;margin-bottom:1rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.api-banner input{flex:1;min-width:200px;margin-bottom:0;background:var(--bg);font-family:var(--font-mono);font-size:12px}
+.api-status{font-size:11px;font-weight:500}
+.api-status.ok{color:var(--green)}
+.api-status.no{color:var(--text3)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:4px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap}
+  main{margin-left:0}
+  .metrics-grid{grid-template-columns:1fr 1fr}
+  .g2,.g3{grid-template-columns:1fr}
+}
+
+
+/* UPLOAD ZONE */
+#upload-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:2rem;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:12px;color:var(--text2)}
+#upload-zone:hover,#upload-zone.drag-over{border-color:var(--accent);background:rgba(79,142,247,0.05);color:var(--text)}
+.upload-success{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.2);border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--green);display:flex;align-items:center;gap:8px}
+.upload-error{background:rgba(242,87,87,0.08);border:1px solid rgba(242,87,87,0.2);border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--red)}
+.upload-loading{background:rgba(79,142,247,0.08);border:1px solid rgba(79,142,247,0.2);border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--accent2);display:flex;align-items:center;gap:10px}
+
+/* ANIMATE IN */
+.fade-up{animation:fadeUp 0.4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-mark">Credit Repair</div>
+    <div class="nav-logo-sub">Dispute Dashboard</div>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showSection('analyze')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1"/></svg>
+      Analyze Report
+    </button>
+    <button class="nav-link" onclick="showSection('disputes')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M5 7h6M5 10h4"/></svg>
+      Dispute Queue
+    </button>
+    <button class="nav-link" onclick="showSection('letters')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4l6 5 6-5"/><rect x="2" y="3" width="12" height="10" rx="1"/></svg>
+      AI Dispute Letters
+    </button>
+    <button class="nav-link" onclick="showSection('rebuild')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,12 6,7 9,10 14,4"/></svg>
+      Rebuild Plan
+    </button>
+    <button class="nav-link" onclick="showSection('tracker')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5 8h6M8 5v6"/></svg>
+      Progress Tracker
+    </button>
+    <button class="nav-link" onclick="showSection('resources')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z"/><path d="M8 7v4M8 5.5v.5"/></svg>
+      Resources & Laws
+    </button>
+  </div>
+  <div class="nav-score-card">
+    <div class="nav-score-num" id="nav-score-display">—</div>
+    <div class="nav-score-lbl">Current credit score</div>
+    <div class="score-pill" id="nav-score-tier">Enter score above</div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main>
+
+<!-- AI API KEY BANNER (always visible) -->
+<div class="api-banner">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#a78bfa" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5v.5"/></svg>
+  <div style="font-size:12px;color:var(--purple);font-weight:500">AI-Powered Letters</div>
+  <input type="password" id="api-key-input" placeholder="Paste your Anthropic API key for live AI letters…" oninput="checkApiKey()" />
+  <span class="api-status no" id="api-status">Not connected</span>
+  <a href="https://console.anthropic.com/settings/keys" target="_blank" style="font-size:11px;color:var(--text3);text-decoration:none">Get key →</a>
+</div>
+
+<!-- ═══ SECTION: ANALYZE ═══ -->
+<div id="sec-analyze" class="section active fade-up">
+  <div class="page-header">
+    <div class="page-title">Analyze Your Report</div>
+    <div class="page-sub">Enter negative accounts — we'll rank them and build your attack plan</div>
+  </div>
+
+  <div class="g2" style="margin-bottom:1.5rem">
+    <div class="card">
+      <div class="card-title">Your Info</div>
+      <label>Current credit score</label>
+      <input type="number" id="score-input" placeholder="e.g. 580" min="300" max="850" oninput="updateScoreDisplay()" />
+      <label>Your full name</label>
+      <input type="text" id="your-name" placeholder="Jane Smith" />
+      <label>Your address</label>
+      <input type="text" id="your-addr" placeholder="123 Main St, Atlanta, GA 30301" />
+      <label>SSN last 4 digits</label>
+      <input type="text" id="your-ssn" placeholder="XXXX" maxlength="4" />
+      <label>Date of birth</label>
+      <input type="text" id="your-dob" placeholder="MM/DD/YYYY" />
+    </div>
+    <div class="card">
+      <div class="card-title">Upload or Paste Your Credit Report</div>
+      <div id="upload-zone" onclick="document.getElementById('file-input').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:8px;opacity:0.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div style="font-size:14px;font-weight:500">Drop your credit report here</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">PDF or image (JPG, PNG) &middot; or click to browse</div>
+        <input type="file" id="file-input" accept=".pdf,image/*" style="display:none" onchange="handleFileSelect(event)" />
+      </div>
+      <div id="upload-status" style="display:none;margin-bottom:10px"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin:4px 0 12px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--text3)">OR PASTE MANUALLY</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+      <div class="tip-box" style="font-size:12px">Format: <strong>Creditor, Account#, Balance, Status</strong> &mdash; one per line</div>
+      <textarea id="report-input" placeholder="LVNV Funding, #8834, $450, Collections&#10;Capital One, #4521, $1200, Collections&#10;Chase, #5511, $0, Late Payment (2x)&#10;Citibank, #2210, $2100, Charged Off&#10;Medical Bill, #M-901, $340, Collections" style="min-height:100px"></textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="analyzeReport()" id="analyze-btn">&#9889; Analyze My Report &#8594;</button>
+        <button class="btn btn-sm" onclick="loadSample()">Load sample</button>
+      </div>
+    </div>    </div>
+  </div>
+
+  <div id="analysis-out" style="display:none" class="fade-up">
+    <div class="metrics-grid">
+      <div class="metric-card red"><div class="metric-num" id="m-total">0</div><div class="metric-lbl">Negative accounts</div></div>
+      <div class="metric-card green"><div class="metric-num" id="m-easy">0</div><div class="metric-lbl">Easy wins</div></div>
+      <div class="metric-card amber"><div class="metric-num" id="m-medium">0</div><div class="metric-lbl">Medium disputes</div></div>
+      <div class="metric-card blue"><div class="metric-num" id="m-potential">+0</div><div class="metric-lbl">Est. score potential</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Accounts — ranked easiest to remove first</div>
+      <div id="accounts-list"></div>
+      <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="showSection('disputes');buildQueue()">Build Dispute Queue →</button>
+        <button class="btn btn-green" onclick="showSection('letters')">Generate Letters →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION: DISPUTES ═══ -->
+<div id="sec-disputes" class="section fade-up">
+  <div class="page-header">
+    <div class="page-title">Dispute Queue</div>
+    <div class="page-sub">Your personalized 3-wave dispute strategy — start with the easiest wins</div>
+  </div>
+  <div class="tip-box">
+    <strong>Strategy:</strong> Send Wave 1 letters now. Wait 35 days for responses. Then send Wave 2. Wave 3 comes last — these are complex and need more evidence or negotiation.
+  </div>
+  <div id="dispute-queue">
+    <div class="card" style="text-align:center;padding:3rem;color:var(--text3)">
+      Complete Step 1 (Analyze Report) first to populate your dispute queue.
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION: LETTERS ═══ -->
+<div id="sec-letters" class="section fade-up">
+  <div class="page-header">
+    <div class="page-title">AI Dispute Letters</div>
+    <div class="page-sub">Letters generated with current FCRA rules, CFPB guidelines, and 2024–2025 regulatory updates</div>
+  </div>
+
+  <div class="g2" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title">Letter Details</div>
+      <label>Creditor / Collection Agency</label>
+      <input type="text" id="l-creditor" placeholder="LVNV Funding LLC" />
+      <label>Account number (partial OK)</label>
+      <input type="text" id="l-acct" placeholder="****8834" />
+      <label>Reported balance</label>
+      <input type="text" id="l-balance" placeholder="$450" />
+      <label>Dispute type</label>
+      <select id="l-type">
+        <option value="not-mine">Not my account / identity theft</option>
+        <option value="paid">Account already paid in full</option>
+        <option value="settled">Account settled — wrong status</option>
+        <option value="inaccurate">Inaccurate information / wrong amount</option>
+        <option value="statute">Past statute of limitations</option>
+        <option value="medical">Medical debt (CFPB 2025 protections)</option>
+        <option value="duplicate">Duplicate account listing</option>
+        <option value="unverifiable">Cannot be verified</option>
+        <option value="goodwill">Goodwill removal request</option>
+        <option value="validation">Debt validation demand</option>
+      </select>
+      <label>Send to bureau(s)</label>
+      <select id="l-bureau">
+        <option>All three bureaus (separate letters)</option>
+        <option>Equifax</option>
+        <option>Experian</option>
+        <option>TransUnion</option>
+      </select>
+      <label>Additional context (optional)</label>
+      <input type="text" id="l-context" placeholder="e.g. Account is 8 years old, debt collector bought it…" />
+    </div>
+    <div class="card">
+      <div class="card-title">Your Info (auto-filled from Step 1)</div>
+      <label>Full name</label>
+      <input type="text" id="l-name" placeholder="Jane Smith" />
+      <label>Mailing address</label>
+      <input type="text" id="l-addr" placeholder="123 Main St, Atlanta, GA 30301" />
+      <label>SSN last 4</label>
+      <input type="text" id="l-ssn" placeholder="XXXX" maxlength="4" />
+      <label>Date of birth</label>
+      <input type="text" id="l-dob" placeholder="MM/DD/YYYY" />
+      <div class="warn-box" style="margin-top:0.5rem">
+        ⚡ Always send via <strong>Certified Mail with Return Receipt</strong>. The 30-day investigation clock starts when the bureau receives it.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="generateAILetter()" id="gen-btn">Generate AI Letter →</button>
+        <button class="btn btn-sm" onclick="clearLetter()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="letter-card" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+      <div class="card-title" style="margin-bottom:0">Generated Letter</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sm" onclick="copyLetter()">Copy text</button>
+        <button class="btn btn-sm btn-green" onclick="printLetter()">Print / Save PDF</button>
+        <button class="btn btn-sm" onclick="addToLog()">Add to dispute log</button>
+      </div>
+    </div>
+    <div id="letter-body" class="letter-output"></div>
+    <div style="margin-top:12px;font-size:12px;color:var(--text3);line-height:1.6">
+      Enclosures to include: copy of government-issued photo ID · utility bill or bank statement (proof of address) · any supporting documentation relevant to your dispute
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION: REBUILD ═══ -->
+<div id="sec-rebuild" class="section fade-up">
+  <div class="page-header">
+    <div class="page-title">Rebuild Plan</div>
+    <div class="page-sub">Build positive history while disputes are pending — both tracks together maximize speed</div>
+  </div>
+
+  <div class="g2" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title">Score factors</div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">Payment history</div><div class="factor-sub">Never miss a due date — minimum payments count</div></div><div><div class="factor-bar-wrap"><div class="factor-bar" style="width:100%;background:var(--red)"></div></div><span class="badge badge-red" style="margin-top:4px;display:inline-block">35%</span></div></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">Credit utilization</div><div class="factor-sub">Keep balances below 10% of each limit</div></div><div><div class="factor-bar-wrap"><div class="factor-bar" style="width:86%;background:var(--red)"></div></div><span class="badge badge-red" style="margin-top:4px;display:inline-block">30%</span></div></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">Length of history</div><div class="factor-sub">Never close your oldest cards</div></div><div><div class="factor-bar-wrap"><div class="factor-bar" style="width:43%;background:var(--amber)"></div></div><span class="badge badge-amber" style="margin-top:4px;display:inline-block">15%</span></div></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">Credit mix</div><div class="factor-sub">Installment + revolving credit both help</div></div><div><div class="factor-bar-wrap"><div class="factor-bar" style="width:28%;background:var(--amber)"></div></div><span class="badge badge-amber" style="margin-top:4px;display:inline-block">10%</span></div></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">New inquiries</div><div class="factor-sub">Space hard pulls 6+ months apart</div></div><div><div class="factor-bar-wrap"><div class="factor-bar" style="width:28%;background:var(--green)"></div></div><span class="badge badge-green" style="margin-top:4px;display:inline-block">10%</span></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">30-day quick wins checklist</div>
+      <div class="check-item"><input type="checkbox" class="chk"><div><div class="check-text">Pull all 3 free credit reports</div><div class="check-sub">AnnualCreditReport.com — Equifax, Experian, TransUnion</div></div></div>
+      <div class="check-item"><input type="checkbox" class="chk"><div><div class="check-text">Pay down highest-utilization cards first</div><div class="check-sub">Below 30% = big gains. Below 10% = maximum gains</div></div></div>
+      <div class="check-item"><input type="checkbox" class="chk"><div><div class="check-text">Become an authorized user</div><div class="check-sub">Ask a family member with good credit — their history adds to yours</div></div></div>
+      <div class="check-item"><input type="checkbox" class="chk"><div><div class="check-text">Open a secured credit card</div><div class="check-sub">Discover It Secured, OpenSky, or Capital One Secured</div></div></div>
+      <div class="check-item"><input type="checkbox" class="chk"><div><div class="check-text">Enroll in Experian Boost (free)</div><div class="check-sub">Adds utility, phone, streaming payments to your Experian report</div></div></div>
+      <div class="check-item"><input type="checkbox" class="chk"><div><div class="check-text">Set up autopay on all accounts</div><div class="check-sub">Even $10/month prevents new late payments</div></div></div>
+      <div class="check-item"><input type="checkbox" class="chk"><div><div class="check-text">Request goodwill deletions</div><div class="check-sub">Call creditors about 1-2 late payments — ask removal as courtesy</div></div></div>
+      <div class="check-item"><input type="checkbox" class="chk"><div><div class="check-text">Dispute all errors simultaneously</div><div class="check-sub">File with all 3 bureaus at once — 30-day clock runs concurrently</div></div></div>
+      <div class="check-item"><input type="checkbox" class="chk"><div><div class="check-text">Request a credit limit increase</div><div class="check-sub">Higher limits lower utilization ratio without paying anything</div></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Secured card & credit builder options</div>
+    <div class="g3">
+      <div style="padding:12px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">Discover It Secured</div>
+        <div style="font-size:12px;color:var(--text2)">No annual fee · Cash back · Graduates to unsecured</div>
+        <span class="badge badge-green" style="margin-top:8px">Best overall</span>
+      </div>
+      <div style="padding:12px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">OpenSky Secured Visa</div>
+        <div style="font-size:12px;color:var(--text2)">No credit check · Easy approval · Reports all 3 bureaus</div>
+        <span class="badge badge-blue" style="margin-top:8px">No hard pull</span>
+      </div>
+      <div style="padding:12px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">Self Credit Builder</div>
+        <div style="font-size:12px;color:var(--text2)">Installment loan · No upfront cash · Builds payment history</div>
+        <span class="badge badge-purple" style="margin-top:8px">Credit mix boost</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION: TRACKER ═══ -->
+<div id="sec-tracker" class="section fade-up">
+  <div class="page-header">
+    <div class="page-title">Progress Tracker</div>
+    <div class="page-sub">Track disputes and watch your score climb</div>
+  </div>
+
+  <div class="g2" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title">Score progress</div>
+      <div class="g3" style="margin-bottom:12px">
+        <div><label>Starting score</label><input type="number" id="t-start" placeholder="520" /></div>
+        <div><label>Current score</label><input type="number" id="t-current" placeholder="580" /></div>
+        <div><label>Target score</label><input type="number" id="t-target" placeholder="700" /></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="showProgress()">Update Progress</button>
+      <div id="prog-out" style="display:none;margin-top:1rem">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px">
+          <span id="prog-start-lbl">300</span>
+          <span id="prog-current-lbl" style="color:var(--accent2)">current</span>
+          <span id="prog-target-lbl">850</span>
+        </div>
+        <div class="score-track"><div class="score-fill" id="prog-bar" style="width:0%"></div></div>
+        <div id="prog-msg" style="font-size:13px;color:var(--text2);margin-top:10px;line-height:1.6"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Log a dispute</div>
+      <div class="g2">
+        <div><label>Creditor</label><input type="text" id="log-creditor" placeholder="LVNV Funding" /></div>
+        <div><label>Date sent</label><input type="date" id="log-date" /></div>
+      </div>
+      <div class="g2">
+        <div><label>Bureau</label>
+          <select id="log-bureau"><option>Equifax</option><option>Experian</option><option>TransUnion</option><option>All 3</option></select>
+        </div>
+        <div><label>Status</label>
+          <select id="log-status"><option>Sent</option><option>Pending</option><option>Removed ✓</option><option>Verified — escalate</option><option>Needs follow-up</option></select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="addLog()">Add to log</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Dispute log</div>
+    <div id="log-list">
+      <div style="text-align:center;padding:2rem;color:var(--text3);font-size:13px">No disputes logged yet. Add your first entry above.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION: RESOURCES ═══ -->
+<div id="sec-resources" class="section fade-up">
+  <div class="page-header">
+    <div class="page-title">Laws & Resources</div>
+    <div class="page-sub">Know your rights — every law that protects you</div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Key federal laws</div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">FCRA — Fair Credit Reporting Act</div><div class="factor-sub">Right to dispute inaccurate info · 30-day investigation window · Negative items removed after 7 years (10 for bankruptcy)</div></div><span class="badge badge-blue">15 U.S.C. § 1681</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">FDCPA — Fair Debt Collection Practices Act</div><div class="factor-sub">Collectors can't harass you · Must send debt validation · Can't call before 8am or after 9pm</div></div><span class="badge badge-blue">15 U.S.C. § 1692</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">CFPB Medical Debt Rule (2025)</div><div class="factor-sub">Medical debt under $500 removed from reports · Larger medical debts no longer used in most lending decisions</div></div><span class="badge badge-green">New 2025</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">ECOA — Equal Credit Opportunity Act</div><div class="factor-sub">Creditors cannot discriminate based on race, sex, age, religion, national origin, or marital status</div></div><span class="badge badge-blue">15 U.S.C. § 1691</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">TILA — Truth in Lending Act</div><div class="factor-sub">Right to clear disclosure of credit terms, APR, fees, and total cost before signing</div></div><span class="badge badge-blue">15 U.S.C. § 1601</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Key deadlines & rules</div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">30 days</div><div class="factor-sub">Bureaus must complete investigation after receiving dispute</div></div><span class="badge badge-amber">Hard deadline</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">7 years</div><div class="factor-sub">Most negative items must be removed (late payments, collections, charge-offs)</div></div><span class="badge badge-amber">Automatic removal</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">10 years</div><div class="factor-sub">Chapter 7 bankruptcy can stay on report</div></div><span class="badge badge-red">Longest item</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">5 days</div><div class="factor-sub">Bureau must notify you of dispute results within 5 days of completing investigation</div></div><span class="badge badge-blue">Your right</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">45 days</div><div class="factor-sub">Extended investigation window if you submit new evidence</div></div><span class="badge badge-blue">With new info</span></div>
+      <div class="card-title" style="margin-top:1rem">Bureau mailing addresses</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text2);line-height:2">
+        <strong style="color:var(--text)">Equifax:</strong> P.O. Box 740256, Atlanta, GA 30374<br>
+        <strong style="color:var(--text)">Experian:</strong> P.O. Box 4500, Allen, TX 75013<br>
+        <strong style="color:var(--text)">TransUnion:</strong> P.O. Box 2000, Chester, PA 19016<br>
+        <strong style="color:var(--text)">CFPB Complaints:</strong> consumerfinance.gov/complaint<br>
+        <strong style="color:var(--text)">FTC:</strong> reportfraud.ftc.gov
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ── STATE ──
+let accounts = [];
+let logEntries = JSON.parse(localStorage.getItem('cl_log') || '[]');
+let currentLetter = '';
+
+// ── INIT ──
+document.getElementById('log-date').valueAsDate = new Date();
+syncPersonalInfo();
+renderLog();
+autoLoadReport();
+
+// ── NAV ──
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  const links = document.querySelectorAll('.nav-link');
+  const map = ['analyze','disputes','letters','rebuild','tracker','resources'];
+  links[map.indexOf(id)]?.classList.add('active');
+}
+
+// ── SCORE DISPLAY ──
+function updateScoreDisplay() {
+  const s = parseInt(document.getElementById('score-input').value);
+  if (!s) return;
+  document.getElementById('nav-score-display').textContent = s;
+  let tier = 'Poor', cls = 'badge-red';
+  if (s >= 800) { tier = 'Exceptional'; cls = 'badge-green'; }
+  else if (s >= 740) { tier = 'Very Good'; cls = 'badge-green'; }
+  else if (s >= 670) { tier = 'Good'; cls = 'badge-blue'; }
+  else if (s >= 580) { tier = 'Fair'; cls = 'badge-amber'; }
+  const el = document.getElementById('nav-score-tier');
+  el.textContent = tier;
+  el.className = 'score-pill';
+  localStorage.setItem('cl_score', s);
+}
+
+// ── SYNC ──
+function syncPersonalInfo() {
+  const fields = [
+    ['your-name', 'l-name'],
+    ['your-addr', 'l-addr'],
+    ['your-ssn', 'l-ssn'],
+    ['your-dob', 'l-dob']
+  ];
+  fields.forEach(([src, dst]) => {
+    const srcEl = document.getElementById(src);
+    const dstEl = document.getElementById(dst);
+    srcEl.addEventListener('input', () => dstEl.value = srcEl.value);
+  });
+}
+
+// ── SAMPLE ──
+function loadSample() {
+  document.getElementById('report-input').value =
+    'LVNV Funding,#8834,$450,Collections\\nCapital One,#4521,$1200,Collections\\nMidland Credit,#0012,$800,Collections\\nChase,#5511,$0,Late Payment (2x)\\nCitibank,#2210,$2100,Charged Off\\nMedical Bill,#M-901,$340,Collections\\nStudent Loan,#SL-44,$8500,Late 120 days\\nPortfolio Recovery,#7721,$230,Collections';
+  document.getElementById('score-input').value = 540;
+  updateScoreDisplay();
+}
+
+// Auto-load Makisha's real report data on page load
+function autoLoadReport() {
+  const accounts = [
+    'Spring Oaks Capital LLC,#110712XXX,$623,Collections',
+    'Midland Credit Management,#328590XXX,$753,Collections',
+    'Kikoff Lending LLC,#CLXXXX,$420,Late Payment 60 days',
+    'Merrick Bank Corp,#546316XXXXXX,$1645,Charged Off',
+    'Mission Lane TAB Bank,#431503XXXXXX,$1624,Charged Off',
+    'Affirm Inc,#MPDUTJXX,$0,Charged Off - Paid in Settlement',
+    'NCB Management Service,#101073XXXX,$12456,Collections',
+    'Exeter Finance LLC,#680681XXXXXX,$0,Charged Off - Repossession',
+    'OneMain,#719322XXXXXX,$0,Charged Off - Paid in Settlement'
+  ].join('\\n');
+
+  document.getElementById('report-input').value = accounts;
+  document.getElementById('score-input').value = 561;
+  document.getElementById('your-name').value = 'Makisha Stiles';
+  document.getElementById('your-addr').value = '5000 Macland Rd, Powder Springs, GA 30127';
+  document.getElementById('your-dob').value = '01/01/1983';
+  document.getElementById('l-name').value = 'Makisha Stiles';
+  document.getElementById('l-addr').value = '5000 Macland Rd, Powder Springs, GA 30127';
+  updateScoreDisplay();
+
+  // Show a welcome message
+  document.getElementById('upload-status').style.display = 'block';
+  document.getElementById('upload-status').innerHTML = '<div class="upload-success"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,8 6,11 13,4"/></svg> Your Experian report from May 4, 2026 has been pre-loaded! Review your accounts below then click <strong>Analyze Report</strong>.</div>';
+}
+
+// ── CATEGORIZE ──
+function categorize(line) {
+  const l = line.toLowerCase();
+  const amt = parseInt((line.match(/\\$(\\d+)/)||['','0'])[1]);
+  if (l.includes('medical')) return { p: 1, reason: 'Medical debt — CFPB 2025 rules require removal under $500', badge: 'Easy win', color: 'green' };
+  if (l.includes('duplicate')) return { p: 1, reason: 'Duplicate listing — must be removed under FCRA', badge: 'Easy win', color: 'green' };
+  if (l.includes('collections') && amt < 500) return { p: 1, reason: 'Small collection — high chance of pay-for-delete or unverifiable', badge: 'Easy win', color: 'green' };
+  if (l.includes('collections') && amt >= 500 && amt < 1000) return { p: 2, reason: 'Mid-size collection — dispute accuracy + negotiate settlement', badge: 'Medium', color: 'amber' };
+  if (l.includes('late') && !l.includes('120') && !l.includes('90')) return { p: 2, reason: 'Late payment — goodwill letter or dispute if inaccurate reporting', badge: 'Medium', color: 'amber' };
+  if (l.includes('charged off')) return { p: 2, reason: 'Charge-off — dispute accuracy, then negotiate pay-for-delete', badge: 'Medium', color: 'amber' };
+  if (l.includes('collections') && amt >= 1000) return { p: 3, reason: 'Large collection — negotiate settlement or dispute methodology', badge: 'Complex', color: 'red' };
+  return { p: 3, reason: 'Complex item — requires documentation and possible legal escalation', badge: 'Complex', color: 'red' };
+}
+
+// ── ANALYZE ──
+function analyzeReport() {
+  const lines = document.getElementById('report-input').value.split('\\n').filter(l => l.trim());
+  if (!lines.length) return;
+  accounts = lines.map((line, i) => {
+    const parts = line.split(',').map(s => s.trim());
+    const cat = categorize(line);
+    return { id: i, raw: line, creditor: parts[0]||'Unknown', acct: parts[1]||'', amount: parts[2]||'', status: parts[3]||'Unknown', ...cat };
+  }).sort((a, b) => a.p - b.p);
+
+  const easy = accounts.filter(a => a.p === 1).length;
+  const med = accounts.filter(a => a.p === 2).length;
+  document.getElementById('m-total').textContent = accounts.length;
+  document.getElementById('m-easy').textContent = easy;
+  document.getElementById('m-medium').textContent = med;
+  document.getElementById('m-potential').textContent = '+' + (easy * 18 + med * 10 + accounts.filter(a=>a.p===3).length * 6);
+
+  const list = document.getElementById('accounts-list');
+  list.innerHTML = accounts.map((a, i) => `
+    <div class="account-row">
+      <div class="account-num">${i+1}</div>
+      <div class="priority-dot dot-${a.color === 'green' ? 'green' : a.color === 'amber' ? 'amber' : 'red'}"></div>
+      <div class="account-info">
+        <div class="account-name">${a.creditor} <span style="color:var(--text3);font-weight:400;font-family:var(--font-mono);font-size:12px">${a.acct}</span></div>
+        <div class="account-sub">${a.status} · ${a.amount} — ${a.reason}</div>
+      </div>
+      <span class="badge badge-${a.color === 'green' ? 'green' : a.color === 'amber' ? 'amber' : 'red'}">${a.badge}</span>
+      <button class="btn btn-sm" onclick="prefill('${esc(a.creditor)}','${esc(a.acct)}','${esc(a.status)}','${esc(a.amount)}')">Draft letter</button>
+    </div>`).join('');
+  document.getElementById('analysis-out').style.display = 'block';
+}
+
+function esc(s) { return (s||'').replace(/'/g, "\\\\'"); }
+
+// ── DISPUTE QUEUE ──
+function buildQueue() {
+  if (!accounts.length) { return; }
+  const waves = { 1:[], 2:[], 3:[] };
+  accounts.forEach(a => waves[a.p].push(a));
+  const titles = {
+    1: 'Wave 1 — Send immediately (highest removal odds)',
+    2: 'Wave 2 — Send 35 days after wave 1 resolves',
+    3: 'Wave 3 — Complex accounts (60–90 day timeline)'
+  };
+  const colors = { 1: 'green', 2: 'amber', 3: 'red' };
+  let html = '';
+  [1, 2, 3].forEach(p => {
+    if (!waves[p].length) return;
+    html += `<div class="wave-header"><span class="badge badge-${colors[p]}">${titles[p]}</span><div class="wave-line"></div></div>`;
+    html += `<div class="card" style="padding:0.5rem 1rem;margin-bottom:0.5rem">`;
+    waves[p].forEach(a => {
+      html += `<div class="account-row">
+        <div class="account-info">
+          <div class="account-name">${a.creditor} <span style="color:var(--text3);font-family:var(--font-mono);font-size:12px">${a.acct}</span></div>
+          <div class="account-sub">${a.status} · ${a.amount}</div>
+        </div>
+        <button class="btn btn-sm" onclick="prefill('${esc(a.creditor)}','${esc(a.acct)}','${esc(a.status)}','${esc(a.amount)}');showSection('letters')">Draft letter →</button>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('dispute-queue').innerHTML = html;
+}
+
+// ── PREFILL LETTER ──
+function prefill(creditor, acct, status, amount) {
+  document.getElementById('l-creditor').value = creditor;
+  document.getElementById('l-acct').value = acct;
+  document.getElementById('l-balance').value = amount;
+  const s = status.toLowerCase();
+  let type = 'inaccurate';
+  if (s.includes('medical')) type = 'medical';
+  else if (s.includes('not mine')) type = 'not-mine';
+  else if (s.includes('paid')) type = 'paid';
+  else if (s.includes('duplicate')) type = 'duplicate';
+  else if (s.includes('charged off')) type = 'inaccurate';
+  else if (s.includes('collections')) type = 'unverifiable';
+  document.getElementById('l-type').value = type;
+}
+
+// ── API KEY ──
+function checkApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  const el = document.getElementById('api-status');
+  if (key.startsWith('sk-ant-')) {
+    el.textContent = 'Connected';
+    el.className = 'api-status ok';
+    localStorage.setItem('cl_key', key);
+  } else {
+    el.textContent = 'Not connected';
+    el.className = 'api-status no';
+  }
+}
+
+function getKey() {
+  return document.getElementById('api-key-input').value.trim() || localStorage.getItem('cl_key') || '';
+}
+
+// restore key
+const savedKey = localStorage.getItem('cl_key');
+if (savedKey) { document.getElementById('api-key-input').value = savedKey; checkApiKey(); }
+
+// ── AI LETTER ──
+async function generateAILetter() {
+  const key = getKey();
+  const creditor = document.getElementById('l-creditor').value || '[Creditor]';
+  const acct = document.getElementById('l-acct').value || '[Account #]';
+  const balance = document.getElementById('l-balance').value || '';
+  const type = document.getElementById('l-type').value;
+  const bureau = document.getElementById('l-bureau').value;
+  const context = document.getElementById('l-context').value;
+  const name = document.getElementById('l-name').value || '[Your Name]';
+  const addr = document.getElementById('l-addr').value || '[Your Address]';
+  const ssn = document.getElementById('l-ssn').value || 'XXXX';
+  const dob = document.getElementById('l-dob').value || '[DOB]';
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const bureauAddresses = {
+    'All three bureaus (separate letters)': 'Equifax Information Services LLC, P.O. Box 740256, Atlanta, GA 30374\\n(Also send identical letters to: Experian P.O. Box 4500 Allen TX 75013 · TransUnion P.O. Box 2000 Chester PA 19016)',
+    'Equifax': 'Equifax Information Services LLC\\nP.O. Box 740256\\nAtlanta, GA 30374',
+    'Experian': 'Experian\\nP.O. Box 4500\\nAllen, TX 75013',
+    'TransUnion': 'TransUnion LLC Consumer Dispute Center\\nP.O. Box 2000\\nChester, PA 19016'
+  };
+
+  const card = document.getElementById('letter-card');
+  const body = document.getElementById('letter-body');
+  card.style.display = 'block';
+
+  if (!key || !key.startsWith('sk-ant-')) {
+    // Fallback static letter
+    body.textContent = buildFallbackLetter(name, addr, ssn, dob, today, creditor, acct, balance, type, bureau, bureauAddresses[bureau], context);
+    return;
+  }
+
+  body.innerHTML = '<div class="ai-loading"><div class="dot-flashing"></div> Claude is drafting your letter with current 2025 FCRA rules…</div>';
+  document.getElementById('gen-btn').disabled = true;
+
+  const prompt = `You are a consumer credit law expert and dispute letter specialist. Generate a professional, legally grounded credit dispute letter dated today (${today}).
+
+CONSUMER DETAILS:
+- Name: ${name}
+- Address: ${addr}
+- SSN Last 4: ${ssn}
+- DOB: ${dob}
+
+DISPUTE DETAILS:
+- Creditor/Collection Agency: ${creditor}
+- Account Number: ${acct}
+- Reported Balance: ${balance}
+- Dispute Type: ${type}
+- Target Bureau: ${bureau}
+- Additional context: ${context || 'None provided'}
+
+BUREAU ADDRESS TO USE:
+${bureauAddresses[bureau] || bureauAddresses['Equifax']}
+
+REQUIREMENTS:
+1. Reference the most current FCRA provisions, CFPB rules (including 2025 medical debt rule if relevant), and FDCPA where applicable
+2. Include specific statutory citations (15 U.S.C. § 1681 series)
+3. Reference the CFPB 2025 medical debt rule (removing medical collections under $500 from reports) if type is medical
+4. Demand specific remedies: investigation, proof of verification methodology, deletion if unverifiable
+5. Include threat of CFPB complaint and legal action under § 1681n (willful violations) and § 1681o (negligent violations) with damages of $100–$1,000 per violation
+6. Professional but firm tone
+7. Proper business letter format with enclosures list
+8. If this is a debt validation request, cite FDCPA § 1692g
+9. Mention the 30-day investigation deadline per § 1681i(a)(1)
+10. Include language that the bureau cannot simply verify with the furnisher — they must conduct a genuine investigation
+
+Output ONLY the letter text, no explanations or preamble. Start with the consumer's name and address.`;
+
+  try {
+    const PROXY = 'https://muddy-frost-3757.trustcircleenterprise.workers.dev/';
+    const res = await fetch(PROXY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    if (data.content && data.content[0]) {
+      currentLetter = data.content[0].text;
+      body.textContent = currentLetter;
+    } else {
+      body.textContent = 'Error generating letter. Check your API key and try again.\\n\\n' + JSON.stringify(data);
+    }
+  } catch (e) {
+    body.textContent = buildFallbackLetter(name, addr, ssn, dob, today, creditor, acct, balance, type, bureau, bureauAddresses[bureau], context);
+  }
+  document.getElementById('gen-btn').disabled = false;
+}
+
+function buildFallbackLetter(name, addr, ssn, dob, today, creditor, acct, balance, type, bureau, bureauAddr, context) {
+  const reasons = {
+    'not-mine': `I have no knowledge of this account and have never entered into any contractual relationship with ${creditor}. This account does not belong to me and may be the result of identity theft or a mixed credit file. I am disputing this account in its entirety under FCRA § 611.`,
+    'paid': `This account has been paid in full. The reported balance and/or status is inaccurate. Under the FCRA, all information must be accurate and complete. The balance should reflect $0.00 and status should read "Paid" or the account should be deleted.`,
+    'settled': `This account was settled via written agreement. The current reporting does not accurately reflect the settled status of this account, which constitutes a willful inaccuracy under 15 U.S.C. § 1681s-2.`,
+    'inaccurate': `The information reported for this account contains material inaccuracies. The reported balance, payment history, and/or account status do not match my records. Under FCRA § 611, you must conduct a genuine investigation — not simply parrot information from the furnisher.`,
+    'statute': `This debt is past the applicable statute of limitations and may be time-barred. Additionally, the 7-year reporting period under FCRA § 605(a) may have expired. Any continued reporting of this account after the applicable period is a violation of federal law.`,
+    'medical': `Under the CFPB's 2025 Final Rule on medical debt (effective 2025), medical collections are removed from credit reports. This medical account must be deleted immediately as it falls within the scope of the new CFPB medical debt protections. Reporting this account is now a violation of federal consumer protection regulations.`,
+    'duplicate': `This account is appearing as a duplicate entry on my credit report. The same debt is being reported by multiple collection agencies simultaneously, which violates the FCRA's accuracy requirements under § 1681e(b). One or both entries must be removed.`,
+    'unverifiable': `I am challenging this creditor's ability to verify this account. Under FCRA § 611(a)(1), you must conduct a reasonable investigation. I demand that you provide proof of your verification methodology. If you cannot independently verify this account beyond relying solely on the furnisher's confirmation, it must be deleted.`,
+    'goodwill': `I am requesting a goodwill adjustment to remove this negative item from my credit report. While I acknowledge this account, I have since established a strong payment history and am working diligently to improve my financial standing. I respectfully request this accommodation under your goodwill deletion policy.`,
+    'validation': `Pursuant to the Fair Debt Collection Practices Act (FDCPA), 15 U.S.C. § 1692g, I formally request complete validation of this alleged debt within 30 days. Until the debt is properly validated, all collection activity must cease.`
+  };
+
+  return `${name}
+${addr}
+SSN: ***-**-${ssn}     Date of Birth: ${dob}
+Date: ${today}
+
+${bureauAddr}
+
+RE: FORMAL CREDIT DISPUTE — REQUEST FOR INVESTIGATION AND DELETION
+       Account: ${creditor} | Account #: ${acct} | Reported Balance: ${balance}
+
+To Whom It May Concern:
+
+I am writing pursuant to the Fair Credit Reporting Act (FCRA), 15 U.S.C. § 1681 et seq., to formally dispute the above-referenced account currently appearing on my credit report.
+
+GROUNDS FOR DISPUTE:
+${reasons[type] || reasons['inaccurate']}
+${context ? '\\nADDITIONAL INFORMATION:\\n' + context : ''}
+
+LEGAL DEMANDS:
+Pursuant to 15 U.S.C. § 1681i(a)(1), you are required to conduct a reasonable investigation of this dispute within 30 days of receipt of this letter. During this investigation, you must:
+
+1. Contact the furnisher and request all documentation supporting the accuracy of this account
+2. Review any documentation I provide with this letter
+3. Conduct a genuine independent investigation — not merely forward my dispute to the furnisher
+4. Delete this item if it cannot be verified as accurate, complete, and belonging to me
+
+Per § 1681i(a)(5), if the information cannot be verified, it must be promptly deleted and you may not re-insert it without proper notification under § 1681i(a)(5)(B).
+
+NOTICE OF POTENTIAL LIABILITY:
+If you fail to comply with your obligations under the FCRA, you may be liable for:
+• Actual damages sustained (15 U.S.C. § 1681o)
+• Statutory damages of $100 to $1,000 per violation for willful noncompliance (15 U.S.C. § 1681n)
+• Punitive damages and attorney fees
+
+I am prepared to file a formal complaint with the Consumer Financial Protection Bureau (consumerfinance.gov/complaint) and the Federal Trade Commission if this matter is not resolved promptly and in accordance with federal law.
+
+Please send written confirmation of the results of your investigation to the address above within 5 days of completing your investigation, as required by § 1681i(a)(6).
+
+Sincerely,
+
+
+
+${name}
+
+Enclosures:
+□ Copy of government-issued photo ID
+□ Proof of address (utility bill or bank statement)
+□ Social Security card (optional)
+□ Supporting documentation relating to this dispute`;
+}
+
+function clearLetter() {
+  document.getElementById('letter-card').style.display = 'none';
+  document.getElementById('letter-body').textContent = '';
+}
+
+function copyLetter() {
+  const text = document.getElementById('letter-body').textContent;
+  navigator.clipboard.writeText(text);
+  const btn = event.target;
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy text', 2000);
+}
+
+function printLetter() {
+  const content = document.getElementById('letter-body').textContent;
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>Dispute Letter</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}@media print{body{margin:40px}}</style></head><body>${content}</body></html>`);
+  w.document.close();
+  w.print();
+}
+
+function addToLog() {
+  const creditor = document.getElementById('l-creditor').value;
+  const bureau = document.getElementById('l-bureau').value.split(' ')[0];
+  if (!creditor) return;
+  document.getElementById('log-creditor').value = creditor;
+  document.getElementById('log-bureau').value = bureau === 'All' ? 'All 3' : bureau;
+  showSection('tracker');
+  addLog();
+}
+
+// ── PROGRESS ──
+function showProgress() {
+  const start = parseInt(document.getElementById('t-start').value) || 300;
+  const cur = parseInt(document.getElementById('t-current').value) || start;
+  const target = parseInt(document.getElementById('t-target').value) || 750;
+  const pct = Math.min(100, Math.max(2, Math.round(((cur - start) / (target - start)) * 100)));
+  document.getElementById('prog-bar').style.width = pct + '%';
+  document.getElementById('prog-start-lbl').textContent = start + ' (start)';
+  document.getElementById('prog-current-lbl').textContent = cur + ' (now)';
+  document.getElementById('prog-target-lbl').textContent = target + ' (goal)';
+  const gained = cur - start;
+  const needed = target - cur;
+  let msg = '';
+  if (gained > 0) msg += `You've gained <strong style="color:var(--green)">${gained} points</strong>. `;
+  msg += `${needed > 0 ? `You need <strong style="color:var(--accent2)">${needed} more</strong> to reach ${target}.` : `<strong style="color:var(--green)">Goal reached!</strong>`} `;
+  if (needed > 120) msg += 'Priority: dispute collections + reduce utilization below 30%.';
+  else if (needed > 60) msg += 'Focus: keep utilization below 10% and let disputes resolve.';
+  else msg += 'Stretch: avoid new hard inquiries and maintain perfect payment history.';
+  document.getElementById('prog-msg').innerHTML = msg;
+  document.getElementById('prog-out').style.display = 'block';
+}
+
+// ── LOG ──
+function addLog() {
+  const creditor = document.getElementById('log-creditor').value;
+  if (!creditor) return;
+  const date = document.getElementById('log-date').value;
+  const bureau = document.getElementById('log-bureau').value;
+  const status = document.getElementById('log-status').value;
+  const due = getDue(date);
+  const entry = { creditor, date, bureau, status, due, id: Date.now() };
+  logEntries.unshift(entry);
+  localStorage.setItem('cl_log', JSON.stringify(logEntries));
+  renderLog();
+  document.getElementById('log-creditor').value = '';
+}
+
+function getDue(d) {
+  if (!d) return '';
+  const dt = new Date(d); dt.setDate(dt.getDate() + 30);
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function statusBadge(s) {
+  if (s.includes('Removed')) return 'badge-green';
+  if (s.includes('Sent') || s.includes('Pending')) return 'badge-amber';
+  if (s.includes('escalate')) return 'badge-red';
+  return 'badge-gray';
+}
+
+function renderLog() {
+  const el = document.getElementById('log-list');
+  if (!logEntries.length) { el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text3);font-size:13px">No disputes logged yet.</div>'; return; }
+  el.innerHTML = logEntries.map(e => `
+    <div class="log-row">
+      <div class="log-info">
+        <div class="log-name">${e.creditor} — ${e.bureau}</div>
+        <div class="log-sub">Sent ${e.date || 'unknown'}</div>
+      </div>
+      ${e.due && !e.status.includes('Removed') ? `<span class="due-chip">Follow up ${e.due}</span>` : ''}
+      <span class="badge ${statusBadge(e.status)}">${e.status}</span>
+      <button class="btn btn-sm" onclick="removeLog(${e.id})">✕</button>
+    </div>`).join('');
+}
+
+function removeLog(id) {
+  logEntries = logEntries.filter(e => e.id !== id);
+  localStorage.setItem('cl_log', JSON.stringify(logEntries));
+  renderLog();
+}
+
+// ── FILE UPLOAD ──
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) processFile(file);
+}
+
+async function processFile(file) {
+  const key = getKey();
+  const statusEl = document.getElementById('upload-status');
+  statusEl.style.display = 'block';
+
+  if (!key || !key.startsWith('sk-ant-')) {
+    statusEl.innerHTML = '<div class="upload-error">⚠ Connect your Anthropic API key above to use AI file reading. Or paste accounts manually below.</div>';
+    return;
+  }
+
+  const isImage = file.type.startsWith('image/');
+  const isPDF = file.type === 'application/pdf';
+
+  if (!isImage && !isPDF) {
+    statusEl.innerHTML = '<div class="upload-error">Please upload a PDF or image file (JPG, PNG).</div>';
+    return;
+  }
+
+  statusEl.innerHTML = '<div class="upload-loading"><div class="dot-flashing"></div> Reading your credit report with AI — this takes 15–30 seconds…</div>';
+  document.getElementById('analyze-btn').disabled = true;
+
+  try {
+    let messageContent = [];
+
+    if (isPDF) {
+      // Render PDF pages to images using canvas, then send as images
+      const base64pdf = await fileToBase64(file);
+      const pdfData = atob(base64pdf);
+      const pdfBytes = new Uint8Array(pdfData.length);
+      for (let i = 0; i < pdfData.length; i++) pdfBytes[i] = pdfData.charCodeAt(i);
+
+      // Load pdf.js from CDN
+      if (!window.pdfjsLib) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+
+      const pdf = await window.pdfjsLib.getDocument({ data: pdfBytes }).promise;
+      const numPages = Math.min(pdf.numPages, 6); // max 6 pages
+      statusEl.innerHTML = `<div class="upload-loading"><div class="dot-flashing"></div> Converting ${numPages} page(s) to images…</div>`;
+
+      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const imgBase64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+        messageContent.push({
+          type: 'image',
+          source: { type: 'base64', media_type: 'image/jpeg', data: imgBase64 }
+        });
+      }
+    } else {
+      // Regular image
+      const base64 = await fileToBase64(file);
+      messageContent.push({
+        type: 'image',
+        source: { type: 'base64', media_type: file.type, data: base64 }
+      });
+    }
+
+    messageContent.push({
+      type: 'text',
+      text: `You are a credit report analyst. Carefully read this credit report and extract ALL negative accounts including: collections, charge-offs, late payments, judgments, liens, repossessions, and bankruptcies.
+
+For each negative account found, output it on its own line in EXACTLY this format:
+Creditor Name, #AccountNumber, $Balance, Status
+
+Rules:
+- Use the actual creditor or collection agency name
+- Use partial account number if shown (e.g. #****1234), or #Unknown if not shown
+- Use the balance shown, or $0 if none
+- Status should be one of: Collections, Charged Off, Late Payment (Xdays), Repossession, Bankruptcy, Judgment, or describe accurately
+- Include ALL negative items — do not skip any
+- Output ONLY the formatted lines, nothing else — no headers, no explanations, no extra text
+
+If you cannot read the document or find no negative items, output: NO_NEGATIVES_FOUND`
+    });
+
+    statusEl.innerHTML = '<div class="upload-loading"><div class="dot-flashing"></div> AI is analyzing your credit report…</div>';
+
+    const PROXY = 'https://muddy-frost-3757.trustcircleenterprise.workers.dev/';
+    const res = await fetch(PROXY, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 2000, messages: [{ role: 'user', content: messageContent }] })
+    });
+
+    const data = await res.json();
+
+    if (data.content && data.content[0]) {
+      const text = data.content[0].text.trim();
+      if (text === 'NO_NEGATIVES_FOUND') {
+        statusEl.innerHTML = '<div class="upload-success"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,8 6,11 13,4"/></svg> Report read — no negative accounts found! Great news.</div>';
+      } else {
+        document.getElementById('report-input').value = text;
+        const count = text.split('\\n').filter(l => l.trim()).length;
+        statusEl.innerHTML = `<div class="upload-success"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,8 6,11 13,4"/></svg> Found <strong>${count} negative account${count !== 1 ? 's' : ''}</strong> — review below then click Analyze.</div>`;
+      }
+    } else {
+      const errMsg = data.error ? data.error.message : 'Unknown error';
+      statusEl.innerHTML = `<div class="upload-error">Could not read the file: ${errMsg}. Try a clearer image or paste accounts manually.</div>`;
+    }
+  } catch (err) {
+    statusEl.innerHTML = '<div class="upload-error">Error: ' + err.message + '. Try saving as JPG and uploading that instead.</div>';
+  }
+  document.getElementById('analyze-btn').disabled = false;
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+</script>
+</body>
+</html>
+"""
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html)
+
+print("index.html written successfully!")
