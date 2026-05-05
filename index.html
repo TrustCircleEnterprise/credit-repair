@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Credit Repair Dashboard</title>
+<title>ScoreBoss — Hit Hard. Dispute Fast. Win.</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -209,13 +209,26 @@ select option{background:var(--bg3)}
 </style>
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" style="position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-lg);padding:2.5rem;width:340px;text-align:center">
+    <div style="font-family:var(--font-display);font-size:1.8rem;margin-bottom:6px">ScoreBoss</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:2rem;letter-spacing:0.05em;text-transform:uppercase">ScoreBoss is Private</div>
+    <input type="password" id="login-pass" placeholder="Enter your password" style="text-align:center;margin-bottom:12px" onkeydown="if(event.key==='Enter')checkLogin()" />
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="checkLogin()">Enter Dashboard →</button>
+    <div id="login-err" style="color:var(--red);font-size:12px;margin-top:10px;display:none">Incorrect password. Try again.</div>
+
+  </div>
+</div>
+
 <div class="shell">
 <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()" title="Toggle sidebar">&#9776;</button>
 <!-- SIDEBAR NAV -->
 <nav id="main-nav">
   <div class="nav-logo">
-    <div class="nav-logo-mark">Credit Repair</div>
-    <div class="nav-logo-sub">Dispute Dashboard</div>
+    <div class="nav-logo-mark">ScoreBoss</div>
+    <div class="nav-logo-sub">Hit Hard. Dispute Fast. Win.</div>
   </div>
   <div class="nav-links">
     <button class="nav-link active" onclick="showSection('analyze')">
@@ -237,6 +250,14 @@ select option{background:var(--bg3)}
     <button class="nav-link" onclick="showSection('tracker')">
       <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5 8h6M8 5v6"/></svg>
       Progress Tracker
+    </button>
+    <button class="nav-link" onclick="showSection('clients')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.8 2.2-5 5-5"/><circle cx="11" cy="8" r="2"/><path d="M9 13c0-1.7 1.3-3 3-3h.5"/></svg>
+      Clients
+    </button>
+    <button class="nav-link" onclick="showSection('simulator')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,12 5,7 8,9 11,5 14,3"/><path d="M14 3v4M14 3h-4"/></svg>
+      Score Simulator
     </button>
     <button class="nav-link" onclick="showSection('resources')">
       <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z"/><path d="M8 7v4M8 5.5v.5"/></svg>
@@ -528,6 +549,67 @@ select option{background:var(--bg3)}
 </div>
 
 <!-- ═══ SECTION: RESOURCES ═══ -->
+<!-- ═══ SECTION: CLIENTS ═══ -->
+<div id="sec-clients" class="section fade-up">
+  <div class="page-header">
+    <div class="page-title">Client Management</div>
+    <div class="page-sub">Track multiple clients — disputes, scores, and progress all in one place</div>
+  </div>
+  <div class="g2" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title">Add new client</div>
+      <label>Client full name</label>
+      <input type="text" id="c-name" placeholder="John Smith" />
+      <label>Current credit score</label>
+      <input type="number" id="c-score" placeholder="580" />
+      <label>Target score</label>
+      <input type="number" id="c-target" placeholder="700" />
+      <label>Notes</label>
+      <input type="text" id="c-notes" placeholder="3 collections, 2 charge-offs…" />
+      <button class="btn btn-primary btn-sm" onclick="addClient()">Add Client</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Reminders & follow-ups</div>
+      <div id="reminders-list">
+        <div style="color:var(--text3);font-size:13px;text-align:center;padding:2rem">No upcoming reminders. Disputes logged in the tracker will appear here when they're due for follow-up.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Client roster</div>
+    <div id="client-list">
+      <div style="color:var(--text3);font-size:13px;text-align:center;padding:2rem">No clients added yet. Add your first client above.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SECTION: SIMULATOR ═══ -->
+<div id="sec-simulator" class="section fade-up">
+  <div class="page-header">
+    <div class="page-title">Score Simulator</div>
+    <div class="page-sub">See how much each removal could add to your score</div>
+  </div>
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-title">How it works</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.7">Select which accounts you want to simulate removing. The simulator estimates the score impact based on FICO scoring methodology — account type, age, balance, and your current profile. These are estimates, not guarantees.</div>
+  </div>
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-title">Your current profile</div>
+    <div class="g3" style="margin-bottom:1rem">
+      <div><label>Current score</label><input type="number" id="sim-score" placeholder="561" value="561" oninput="runSimulator()" /></div>
+      <div><label>Total accounts</label><input type="number" id="sim-accounts" placeholder="8" value="8" oninput="runSimulator()" /></div>
+      <div><label>Credit utilization %</label><input type="number" id="sim-util" placeholder="78" value="78" oninput="runSimulator()" /></div>
+    </div>
+    <div class="card-title">Select accounts to remove</div>
+    <div id="sim-accounts-list"></div>
+    <button class="btn btn-primary" style="margin-top:1rem" onclick="runSimulator()">Simulate Score Impact →</button>
+  </div>
+  <div class="card" id="sim-results" style="display:none">
+    <div class="card-title">Simulation results</div>
+    <div id="sim-output"></div>
+  </div>
+</div>
+
 <div id="sec-resources" class="section fade-up">
   <div class="page-header">
     <div class="page-title">Laws & Resources</div>
@@ -581,8 +663,9 @@ function showSection(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
   document.getElementById('sec-' + id).classList.add('active');
+  if(id==='clients')renderReminders();
   const links = document.querySelectorAll('.nav-link');
-  const map = ['analyze','disputes','letters','rebuild','tracker','resources'];
+  const map = ['analyze','disputes','letters','rebuild','tracker','clients','simulator','resources'];
   links[map.indexOf(id)]?.classList.add('active');
 }
 
@@ -962,7 +1045,7 @@ function copyLetter() {
 function printLetter() {
   const content = document.getElementById('letter-body').textContent;
   const w = window.open('', '_blank');
-  w.document.write(`<html><head><title>Dispute Letter</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}@media print{body{margin:40px}}</style></head><body>${content}</body></html>`);
+  w.document.write(`<html><head><title>ScoreBoss — Dispute Letter</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}@media print{body{margin:40px}}</style></head><body>${content}</body></html>`);
   w.document.close();
   w.print();
 }
@@ -1329,6 +1412,203 @@ async function mailLetter() {
     mailBtn.textContent = '✉ Send by Mail ($1.20)';
   }
 }
+
+
+// ── LOGIN ──
+const PASS = 'dripsuccess2024';
+function checkLogin() {
+  const entered = document.getElementById('login-pass').value;
+  if (entered === PASS || localStorage.getItem('ds_auth') === '1') {
+    document.getElementById('login-screen').style.display = 'none';
+    localStorage.setItem('ds_auth', '1');
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+// Check if already logged in
+if (localStorage.getItem('ds_auth') === '1') {
+  document.getElementById('login-screen').style.display = 'none';
+}
+
+// ── CLIENTS ──
+let clients = JSON.parse(localStorage.getItem('ds_clients') || '[]');
+
+function addClient() {
+  const name = document.getElementById('c-name').value.trim();
+  if (!name) return;
+  const client = {
+    id: Date.now(),
+    name,
+    score: parseInt(document.getElementById('c-score').value) || 0,
+    target: parseInt(document.getElementById('c-target').value) || 700,
+    notes: document.getElementById('c-notes').value,
+    added: new Date().toLocaleDateString(),
+    disputes: 0,
+    status: 'Active'
+  };
+  clients.unshift(client);
+  localStorage.setItem('ds_clients', JSON.stringify(clients));
+  renderClients();
+  document.getElementById('c-name').value = '';
+  document.getElementById('c-score').value = '';
+  document.getElementById('c-target').value = '';
+  document.getElementById('c-notes').value = '';
+}
+
+function removeClient(id) {
+  clients = clients.filter(c => c.id !== id);
+  localStorage.setItem('ds_clients', JSON.stringify(clients));
+  renderClients();
+}
+
+function loadClient(id) {
+  const c = clients.find(cl => cl.id === id);
+  if (!c) return;
+  document.getElementById('your-name').value = c.name;
+  document.getElementById('l-name').value = c.name;
+  document.getElementById('score-input').value = c.score;
+  updateScoreDisplay();
+  showSection('analyze');
+  alert('Loaded ' + c.name + ' — update their accounts in the Analyze tab.');
+}
+
+function renderClients() {
+  const el = document.getElementById('client-list');
+  if (!clients.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:2rem">No clients added yet.</div>';
+    return;
+  }
+  el.innerHTML = clients.map(c => {
+    const pct = c.score && c.target ? Math.min(100, Math.round(((c.score - 300) / (c.target - 300)) * 100)) : 0;
+    return `<div class="account-row">
+      <div class="account-info">
+        <div class="account-name">${c.name}</div>
+        <div class="account-sub">Score: ${c.score || '—'} → Target: ${c.target} · Added ${c.added}${c.notes ? ' · ' + c.notes : ''}</div>
+        <div class="score-track" style="width:200px;margin-top:6px"><div class="score-fill" style="width:${pct}%"></div></div>
+      </div>
+      <span class="badge badge-green">${c.status}</span>
+      <button class="btn btn-sm" onclick="loadClient(${c.id})">Load →</button>
+      <button class="btn btn-sm" onclick="removeClient(${c.id})" style="color:var(--red)">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ── REMINDERS ──
+function renderReminders() {
+  const el = document.getElementById('reminders-list');
+  if (!logEntries.length) return;
+  const today = new Date();
+  const upcoming = logEntries.filter(e => {
+    if (e.status.includes('Removed')) return false;
+    if (!e.date) return false;
+    const sent = new Date(e.date);
+    const due = new Date(sent);
+    due.setDate(due.getDate() + 30);
+    const daysLeft = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+    e.daysLeft = daysLeft;
+    return daysLeft <= 35;
+  }).sort((a, b) => a.daysLeft - b.daysLeft);
+
+  if (!upcoming.length) {
+    el.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:1rem">No urgent follow-ups right now.</div>';
+    return;
+  }
+  el.innerHTML = upcoming.map(e => {
+    const urgent = e.daysLeft <= 3;
+    const overdue = e.daysLeft < 0;
+    const color = overdue ? 'red' : urgent ? 'amber' : 'blue';
+    const label = overdue ? `OVERDUE by ${Math.abs(e.daysLeft)} days` : e.daysLeft === 0 ? 'DUE TODAY' : `Due in ${e.daysLeft} days`;
+    return `<div class="log-row">
+      <div class="log-info">
+        <div class="log-name">${e.creditor} — ${e.bureau}</div>
+        <div class="log-sub">Sent ${e.date}</div>
+      </div>
+      <span class="badge badge-${color}">${label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── SCORE SIMULATOR ──
+function initSimulator() {
+  const simList = document.getElementById('sim-accounts-list');
+  const simAccounts = [
+    { name: 'Spring Oaks Capital LLC', balance: 623, type: 'collection', impact: 18 },
+    { name: 'Midland Credit Management', balance: 753, type: 'collection', impact: 20 },
+    { name: 'Kikoff Lending LLC', balance: 420, type: 'late', impact: 12 },
+    { name: 'Merrick Bank Corp', balance: 1645, type: 'chargeoff', impact: 22 },
+    { name: 'Mission Lane TAB Bank', balance: 1624, type: 'chargeoff', impact: 22 },
+    { name: 'Affirm Inc', balance: 0, type: 'chargeoff', impact: 10 },
+    { name: 'NCB Management Service', balance: 12456, type: 'collection', impact: 35 },
+    { name: 'Exeter Finance LLC', balance: 0, type: 'repossession', impact: 25 },
+    { name: 'OneMain', balance: 0, type: 'chargeoff', impact: 15 }
+  ];
+
+  simList.innerHTML = simAccounts.map((a, i) => `
+    <div class="check-item">
+      <input type="checkbox" class="chk" id="sim-${i}" onchange="runSimulator()" />
+      <div style="flex:1">
+        <div class="check-text">${a.name} <span style="color:var(--text3);font-size:12px">$${a.balance.toLocaleString()}</span></div>
+        <div class="check-sub">${a.type} — estimated +${a.impact} pts if removed</div>
+      </div>
+      <span class="badge badge-${a.type === 'collection' ? 'amber' : a.type === 'late' ? 'blue' : 'red'}">~+${a.impact} pts</span>
+    </div>`).join('');
+
+  window.simAccountData = simAccounts;
+}
+
+function runSimulator() {
+  const baseScore = parseInt(document.getElementById('sim-score').value) || 561;
+  const util = parseInt(document.getElementById('sim-util').value) || 78;
+  const simAccounts = window.simAccountData || [];
+  
+  let totalImpact = 0;
+  let removed = [];
+  simAccounts.forEach((a, i) => {
+    const cb = document.getElementById('sim-' + i);
+    if (cb && cb.checked) {
+      totalImpact += a.impact;
+      removed.push(a.name);
+    }
+  });
+
+  // Utilization bonus
+  let utilBonus = 0;
+  if (util > 30) utilBonus = Math.round((util - 30) * 0.4);
+
+  const projected = Math.min(850, baseScore + totalImpact);
+  const withUtil = Math.min(850, projected + utilBonus);
+
+  const resultsEl = document.getElementById('sim-results');
+  const outputEl = document.getElementById('sim-output');
+
+  if (!removed.length) {
+    resultsEl.style.display = 'none';
+    return;
+  }
+
+  resultsEl.style.display = 'block';
+  outputEl.innerHTML = `
+    <div class="metrics-grid" style="margin-bottom:1rem">
+      <div class="metric-card red"><div class="metric-num">${baseScore}</div><div class="metric-lbl">Current score</div></div>
+      <div class="metric-card green"><div class="metric-num">+${totalImpact}</div><div class="metric-lbl">From removals</div></div>
+      <div class="metric-card blue"><div class="metric-num">${projected}</div><div class="metric-lbl">Projected score</div></div>
+      <div class="metric-card amber"><div class="metric-num">${withUtil}</div><div class="metric-lbl">+ Fix utilization</div></div>
+    </div>
+    <div class="score-track" style="margin-bottom:8px"><div class="score-fill" style="width:${Math.round(((projected-300)/550)*100)}%"></div></div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.8">
+      Removing <strong style="color:var(--text)">${removed.length} account${removed.length>1?'s':''}</strong> could bring your score to approximately <strong style="color:var(--green)">${projected}</strong>.
+      ${util > 30 ? `Reducing your utilization from <strong>${util}%</strong> to below 10% could add another <strong style="color:var(--amber)">~${utilBonus} points</strong>, bringing your total projected score to <strong style="color:var(--accent2)">${withUtil}</strong>.` : ''}
+      ${withUtil >= 670 ? '<br><strong style="color:var(--green)">At 670+ you qualify for Good credit rates on most loans and cards!</strong>' : ''}
+      ${withUtil >= 580 && withUtil < 670 ? '<br>At 580+ you qualify for Fair credit products including most secured and some unsecured cards.' : ''}
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:10px">* Estimates based on FICO 8 scoring methodology. Actual results vary based on full credit profile.</div>
+  `;
+}
+
+// Run on page load
+renderClients();
+renderReminders();
+initSimulator();
 
 </script>
 </body>
