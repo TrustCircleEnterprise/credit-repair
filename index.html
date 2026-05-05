@@ -256,10 +256,16 @@ select option{background:var(--bg3)}
 <!-- AI API KEY BANNER (always visible) -->
 <div class="api-banner">
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#a78bfa" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5v.5"/></svg>
-  <div style="font-size:12px;color:var(--purple);font-weight:500">AI-Powered Letters</div>
-  <input type="password" id="api-key-input" placeholder="Paste your Anthropic API key for live AI letters…" oninput="checkApiKey()" />
+  <div style="font-size:12px;color:var(--purple);font-weight:500">AI Letters</div>
+  <input type="password" id="api-key-input" placeholder="Anthropic API key…" oninput="checkApiKey()" style="max-width:220px"/>
   <span class="api-status no" id="api-status">Not connected</span>
   <a href="https://console.anthropic.com/settings/keys" target="_blank" style="font-size:11px;color:var(--text3);text-decoration:none">Get key →</a>
+  <div style="width:1px;height:20px;background:var(--border);margin:0 4px"></div>
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#22c97a" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M2 6h12"/></svg>
+  <div style="font-size:12px;color:var(--green);font-weight:500">Mail Letters</div>
+  <input type="password" id="lob-key-input" placeholder="Lob API key (lob.com)…" oninput="checkLobKey()" style="max-width:200px"/>
+  <span class="api-status no" id="lob-status">Not connected</span>
+  <a href="https://dashboard.lob.com/settings/api-keys" target="_blank" style="font-size:11px;color:var(--text3);text-decoration:none">Get key →</a>
 </div>
 
 <!-- ═══ SECTION: ANALYZE ═══ -->
@@ -405,6 +411,7 @@ select option{background:var(--bg3)}
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-sm" onclick="copyLetter()">Copy text</button>
         <button class="btn btn-sm btn-green" onclick="printLetter()">Print / Save PDF</button>
+        <button class="btn btn-sm" onclick="mailLetter()" id="mail-btn" style="background:rgba(34,201,122,0.15);border-color:var(--green);color:var(--green)">&#9993; Send by Mail ($1.20)</button>
         <button class="btn btn-sm" onclick="addToLog()">Add to dispute log</button>
       </div>
     </div>
@@ -1200,6 +1207,127 @@ function toggleNav() {
   main.classList.toggle('expanded');
   btn.classList.toggle('collapsed');
   btn.innerHTML = nav.classList.contains('collapsed') ? '&#9776;' : '&#9776;';
+}
+
+
+// ── LOB MAIL ──
+function checkLobKey() {
+  const key = document.getElementById('lob-key-input').value.trim();
+  const el = document.getElementById('lob-status');
+  if (key.startsWith('live_') || key.startsWith('test_')) {
+    el.textContent = 'Connected';
+    el.className = 'api-status ok';
+    localStorage.setItem('lob_key', key);
+  } else {
+    el.textContent = 'Not connected';
+    el.className = 'api-status no';
+  }
+}
+
+function getLobKey() {
+  return document.getElementById('lob-key-input').value.trim() || localStorage.getItem('lob_key') || '';
+}
+
+// Restore Lob key
+const savedLobKey = localStorage.getItem('lob_key');
+if (savedLobKey) { document.getElementById('lob-key-input').value = savedLobKey; checkLobKey(); }
+
+async function mailLetter() {
+  const lobKey = getLobKey();
+  const letterText = document.getElementById('letter-body').textContent;
+  const name = document.getElementById('l-name').value || 'Makisha Stiles';
+  const addr = document.getElementById('l-addr').value || '5000 Macland Rd, Powder Springs, GA 30127';
+  const bureau = document.getElementById('l-bureau').value;
+  const creditor = document.getElementById('l-creditor').value || 'Credit Bureau';
+
+  if (!letterText || letterText.length < 100) {
+    alert('Please generate a letter first before mailing.');
+    return;
+  }
+
+  if (!lobKey) {
+    alert('Please enter your Lob API key in the banner above.\n\nSign up free at lob.com — test mode is free, live letters cost ~$1.20 each.');
+    return;
+  }
+
+  // Bureau addresses
+  const bureauAddrs = {
+    'Equifax': { name: 'Equifax Information Services LLC', address: 'PO Box 740256', city: 'Atlanta', state: 'GA', zip: '30374' },
+    'Experian': { name: 'Experian', address: 'PO Box 4500', city: 'Allen', state: 'TX', zip: '75013' },
+    'TransUnion': { name: 'TransUnion LLC Consumer Dispute Center', address: 'PO Box 2000', city: 'Chester', state: 'PA', zip: '19016' },
+  };
+
+  const bureauKey = Object.keys(bureauAddrs).find(b => bureau.includes(b)) || 'Equifax';
+  const toAddr = bureauAddrs[bureauKey];
+
+  // Parse sender address
+  const addrParts = addr.split(',').map(s => s.trim());
+  const street = addrParts[0] || '5000 Macland Rd';
+  const cityState = addrParts[1] || 'Powder Springs GA 30127';
+  const cityMatch = cityState.match(/^(.+?)\s+([A-Z]{2})\s+(\d{5})/);
+  const city = cityMatch ? cityMatch[1] : 'Powder Springs';
+  const state = cityMatch ? cityMatch[2] : 'GA';
+  const zip = cityMatch ? cityMatch[3] : '30127';
+
+  const mailBtn = document.getElementById('mail-btn');
+  mailBtn.disabled = true;
+  mailBtn.textContent = 'Sending…';
+
+  try {
+    // Convert letter to HTML for Lob
+    const htmlContent = `<html><body style="font-family:Georgia,serif;font-size:13px;line-height:1.8;margin:60px;white-space:pre-wrap">${letterText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</body></html>`;
+
+    const lobPayload = {
+      description: `Dispute Letter — ${creditor} — ${bureauKey}`,
+      to: {
+        name: toAddr.name,
+        address_line1: toAddr.address,
+        address_city: toAddr.city,
+        address_state: toAddr.state,
+        address_zip: toAddr.zip,
+        address_country: 'US'
+      },
+      from: {
+        name: name,
+        address_line1: street,
+        address_city: city,
+        address_state: state,
+        address_zip: zip,
+        address_country: 'US'
+      },
+      file: `<html><body style="font-family:Georgia,serif;font-size:12px;line-height:1.8;margin:60px 80px;white-space:pre-wrap">${letterText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</body></html>`,
+      color: false,
+      double_sided: false,
+      address_placement: 'top_first_page'
+    };
+
+    const res = await fetch('https://api.lob.com/v1/letters', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + btoa(lobKey + ':')
+      },
+      body: JSON.stringify(lobPayload)
+    });
+
+    const data = await res.json();
+
+    if (data.id) {
+      const isTest = lobKey.startsWith('test_');
+      alert(`✅ Letter ${isTest ? '(TEST MODE) ' : ''}queued for mailing!\n\nLob ID: ${data.id}\nTo: ${toAddr.name}\n${isTest ? '\n⚠ Using test key — no real letter sent. Switch to live key to mail for real.' : '\nExpected delivery: 3-5 business days'}`);
+      mailBtn.style.background = 'rgba(34,201,122,0.3)';
+      mailBtn.textContent = '✓ Mailed!';
+      addToLog();
+    } else {
+      alert('Lob error: ' + (data.error?.message || JSON.stringify(data)));
+      mailBtn.disabled = false;
+      mailBtn.textContent = '✉ Send by Mail ($1.20)';
+    }
+  } catch (err) {
+    alert('Error sending: ' + err.message);
+    mailBtn.disabled = false;
+    mailBtn.textContent = '✉ Send by Mail ($1.20)';
+  }
 }
 
 </script>
