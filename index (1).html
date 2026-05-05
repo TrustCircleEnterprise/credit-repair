@@ -1417,18 +1417,26 @@ async function mailLetter() {
 // ── LOGIN ──
 const PASS = 'dripsuccess2024';
 function checkLogin() {
-  const entered = document.getElementById('login-pass').value;
-  if (entered === PASS || localStorage.getItem('ds_auth') === '1') {
-    document.getElementById('login-screen').style.display = 'none';
+  const entered = document.getElementById('login-pass').value.trim();
+  const errEl = document.getElementById('login-err');
+  if (entered === PASS) {
     localStorage.setItem('ds_auth', '1');
+    document.getElementById('login-screen').style.display = 'none';
+    if (errEl) errEl.style.display = 'none';
   } else {
-    document.getElementById('login-err').style.display = 'block';
+    if (errEl) errEl.style.display = 'block';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
   }
 }
-// Check if already logged in
-if (localStorage.getItem('ds_auth') === '1') {
-  document.getElementById('login-screen').style.display = 'none';
-}
+
+// Auto-check if already authenticated
+(function() {
+  if (localStorage.getItem('ds_auth') === '1') {
+    const ls = document.getElementById('login-screen');
+    if (ls) ls.style.display = 'none';
+  }
+})();
 
 // ── CLIENTS ──
 let clients = JSON.parse(localStorage.getItem('ds_clients') || '[]');
