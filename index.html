@@ -604,15 +604,10 @@ function toggleNav(){
   const main=document.querySelector('main');
   const btn=document.getElementById('nav-toggle');
   const overlay=document.getElementById('nav-overlay');
-  if(false){
-    nav.classList.toggle('mobile-open');
-    overlay.classList.toggle('active');
-    btn.classList.toggle('mobile-open');
-  } else {
-    nav.classList.toggle('collapsed');
-    main.classList.toggle('expanded');
-    btn.classList.toggle('collapsed');
-  }
+  nav.classList.toggle('collapsed');
+  main.classList.toggle('expanded');
+  btn.classList.toggle('collapsed');
+  overlay.classList.toggle('active');
 }
 
 function updateScoreDisplay(){
