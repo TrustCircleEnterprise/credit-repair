@@ -14,7 +14,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 /* LAYOUT */
 .shell{display:flex;min-height:100vh;position:relative;z-index:1}
-nav{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto;transition:transform 0.3s ease}
+nav{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto;scrollbar-width:thin;transition:transform 0.3s ease}
 nav.nav-hidden{transform:translateX(-100%)}
 main{margin-left:220px;flex:1;padding:2rem;min-width:0;overflow-x:hidden;transition:margin-left 0.3s ease}
 main.main-full{margin-left:0}
