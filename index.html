@@ -810,7 +810,7 @@ async function generateAILetter(){
   var prompt='You are a consumer credit law expert. Generate a professional dispute letter dated '+today+'.\n\nConsumer: '+name+', '+addr+', SSN last 4: '+ssn+', DOB: '+dob+'\nCreditor: '+creditor+', Account: '+acct+', Balance: '+balance+'\nDispute type: '+type+'\nBureau: '+bureau+'\nContext: '+(context||'None')+'\nBureau address: '+(bureauAddresses[bureau]||bureauAddresses['Equifax'])+'\n\nRequirements: cite current FCRA provisions and specific statutes (15 U.S.C. 1681 series), demand investigation and deletion if unverifiable, threaten CFPB complaint and legal action under 1681n and 1681o, reference 30-day deadline per 1681i(a)(1), require genuine investigation. Include CFPB 2025 medical debt rule if type is medical. Professional firm tone. Output ONLY the letter text starting with consumer name and address.';
   try{
     var PROXY='https://muddy-frost-3757.trustcircleenterprise.workers.dev/';
-    var res=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:prompt}]})});
+    var res=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1500,messages:[{role:'user',content:prompt}]})});
     var data=await res.json();
     if(data.content&&data.content[0]){body.textContent=data.content[0].text;}
     else{body.textContent='Error: '+JSON.stringify(data);}
@@ -958,7 +958,7 @@ async function processFile(file){
     messageContent.push({type:'text',text:'You are a credit report analyst. Extract ALL negative accounts from this credit report. For each, output one line: Creditor Name, #AccountNumber, $Balance, Status\n\nOnly output these lines, nothing else. If no negatives found, output: NO_NEGATIVES_FOUND'});
     statusEl.innerHTML='<div class="upload-loading"><div class="dot-flashing"></div> AI analyzing your report…</div>';
     var PROXY='https://muddy-frost-3757.trustcircleenterprise.workers.dev/';
-    var res=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:messageContent}]})});
+    var res=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,messages:[{role:'user',content:messageContent}]})});
     var data=await res.json();
     if(data.content&&data.content[0]){
       var text=data.content[0].text.trim();
