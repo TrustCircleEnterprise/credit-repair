@@ -15,9 +15,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 /* LAYOUT */
 .shell{display:flex;min-height:100vh;position:relative;z-index:1}
 nav{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto;transition:transform 0.25s ease}
-nav.hidden{transform:translateX(-240px)}
+nav.collapsed{transform:translateX(-220px)}
 main{margin-left:220px;flex:1;padding:2rem;min-width:0;overflow-x:hidden;transition:margin-left 0.25s ease}
-main.full{margin-left:0}
+main.expanded{margin-left:0}
 .nav-toggle{position:fixed;top:12px;left:228px;z-index:200;background:var(--surface);border:1px solid var(--border2);border-radius:6px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:left 0.25s ease;color:var(--text2);font-size:16px}
 .nav-toggle.collapsed{left:8px}
 
@@ -592,7 +592,7 @@ function showSection(id){
   const map=['analyze','disputes','letters','rebuild','tracker','clients','simulator','resources'];
   document.querySelectorAll('.nav-link')[map.indexOf(id)]?.classList.add('active');
   // Close mobile nav on section change
-  if(false){
+  if(window.innerWidth<=540){
     document.getElementById('main-nav').classList.remove('mobile-open');
     document.getElementById('nav-overlay').classList.remove('active');
     document.getElementById('nav-toggle').classList.remove('mobile-open');
@@ -600,17 +600,18 @@ function showSection(id){
 }
 
 function toggleNav(){
-  var nav=document.getElementById('main-nav');
-  var main=document.getElementById('main-content');
-  var btn=document.getElementById('nav-toggle');
-  if(nav.style.transform==='translateX(-100%)'){
-    nav.style.transform='';
-    main.style.marginLeft='220px';
-    btn.style.left='228px';
+  const nav=document.getElementById('main-nav');
+  const main=document.querySelector('main');
+  const btn=document.getElementById('nav-toggle');
+  const overlay=document.getElementById('nav-overlay');
+  if(window.innerWidth<=540){
+    nav.classList.toggle('mobile-open');
+    overlay.classList.toggle('active');
+    btn.classList.toggle('mobile-open');
   } else {
-    nav.style.transform='translateX(-100%)';
-    main.style.marginLeft='0';
-    btn.style.left='10px';
+    nav.classList.toggle('collapsed');
+    main.classList.toggle('expanded');
+    btn.classList.toggle('collapsed');
   }
 }
 
@@ -870,15 +871,7 @@ function copyLetter(){
 function printLetter(){
   const content=document.getElementById('letter-body').textContent;
   const w=window.open('','_blank');
-  w.document.write(`<html><head><title>ScoreBoss Dispute Letter</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}@media print{body{margin:40px}}</style></head><body>${content}<script>
-document.querySelector('[onclick="toggleNav()"]').addEventListener("click", function(){
-  var nav = document.getElementById("main-nav");
-  var main = document.querySelector("main");
-  var isHidden = nav.style.transform === "translateX(-220px)";
-  nav.style.transform = isHidden ? "" : "translateX(-220px)";
-  main.style.marginLeft = isHidden ? "220px" : "0";
-});
-</script></body></html>`);
+  w.document.write(`<html><head><title>ScoreBoss Dispute Letter</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}@media print{body{margin:40px}}</style></head><body>${content}</body></html>`);
   w.document.close();w.print();
 }
 
@@ -916,15 +909,7 @@ Sign up free at lob.com — test mode is free, live letters ~$1.20 each.');retur
   const mailBtn=document.getElementById('mail-btn');
   mailBtn.disabled=true;mailBtn.textContent='Sending…';
   try{
-    const letterHtml=`<html><body style="font-family:Georgia,serif;font-size:12px;line-height:1.8;margin:60px 80px;white-space:pre-wrap">${letterText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}<script>
-document.querySelector('[onclick="toggleNav()"]').addEventListener("click", function(){
-  var nav = document.getElementById("main-nav");
-  var main = document.querySelector("main");
-  var isHidden = nav.style.transform === "translateX(-220px)";
-  nav.style.transform = isHidden ? "" : "translateX(-220px)";
-  main.style.marginLeft = isHidden ? "220px" : "0";
-});
-</script></body></html>`;
+    const letterHtml=`<html><body style="font-family:Georgia,serif;font-size:12px;line-height:1.8;margin:60px 80px;white-space:pre-wrap">${letterText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</body></html>`;
     const res=await fetch('https://api.lob.com/v1/letters',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(lobKey+':')},body:JSON.stringify({description:`Dispute Letter — ${creditor} — ${bureauKey}`,to:{name:toAddr.name,address_line1:toAddr.address,address_city:toAddr.city,address_state:toAddr.state,address_zip:toAddr.zip,address_country:'US'},from:{name,address_line1:street,address_city:city,address_state:state,address_zip:zip,address_country:'US'},file:letterHtml,color:false,double_sided:false,address_placement:'top_first_page'})});
     const data=await res.json();
     if(data.id){
@@ -1142,13 +1127,5 @@ function runSimulator(){
     <div style="font-size:11px;color:var(--text3);margin-top:10px">* Estimates based on FICO 8 methodology. Actual results vary.</div>`;
 }
 </script>
-<script>
-document.querySelector('[onclick="toggleNav()"]').addEventListener("click", function(){
-  var nav = document.getElementById("main-nav");
-  var main = document.querySelector("main");
-  var isHidden = nav.style.transform === "translateX(-220px)";
-  nav.style.transform = isHidden ? "" : "translateX(-220px)";
-  main.style.marginLeft = isHidden ? "220px" : "0";
-});
-</script></body>
+</body>
 </html>
