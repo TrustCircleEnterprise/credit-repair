@@ -870,7 +870,15 @@ function copyLetter(){
 function printLetter(){
   const content=document.getElementById('letter-body').textContent;
   const w=window.open('','_blank');
-  w.document.write(`<html><head><title>ScoreBoss Dispute Letter</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}@media print{body{margin:40px}}</style></head><body>${content}</body></html>`);
+  w.document.write(`<html><head><title>ScoreBoss Dispute Letter</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}@media print{body{margin:40px}}</style></head><body>${content}<script>
+document.querySelector('[onclick="toggleNav()"]').addEventListener("click", function(){
+  var nav = document.getElementById("main-nav");
+  var main = document.querySelector("main");
+  var isHidden = nav.style.transform === "translateX(-220px)";
+  nav.style.transform = isHidden ? "" : "translateX(-220px)";
+  main.style.marginLeft = isHidden ? "220px" : "0";
+});
+</script></body></html>`);
   w.document.close();w.print();
 }
 
@@ -908,7 +916,15 @@ Sign up free at lob.com — test mode is free, live letters ~$1.20 each.');retur
   const mailBtn=document.getElementById('mail-btn');
   mailBtn.disabled=true;mailBtn.textContent='Sending…';
   try{
-    const letterHtml=`<html><body style="font-family:Georgia,serif;font-size:12px;line-height:1.8;margin:60px 80px;white-space:pre-wrap">${letterText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</body></html>`;
+    const letterHtml=`<html><body style="font-family:Georgia,serif;font-size:12px;line-height:1.8;margin:60px 80px;white-space:pre-wrap">${letterText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}<script>
+document.querySelector('[onclick="toggleNav()"]').addEventListener("click", function(){
+  var nav = document.getElementById("main-nav");
+  var main = document.querySelector("main");
+  var isHidden = nav.style.transform === "translateX(-220px)";
+  nav.style.transform = isHidden ? "" : "translateX(-220px)";
+  main.style.marginLeft = isHidden ? "220px" : "0";
+});
+</script></body></html>`;
     const res=await fetch('https://api.lob.com/v1/letters',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(lobKey+':')},body:JSON.stringify({description:`Dispute Letter — ${creditor} — ${bureauKey}`,to:{name:toAddr.name,address_line1:toAddr.address,address_city:toAddr.city,address_state:toAddr.state,address_zip:toAddr.zip,address_country:'US'},from:{name,address_line1:street,address_city:city,address_state:state,address_zip:zip,address_country:'US'},file:letterHtml,color:false,double_sided:false,address_placement:'top_first_page'})});
     const data=await res.json();
     if(data.id){
@@ -1126,5 +1142,13 @@ function runSimulator(){
     <div style="font-size:11px;color:var(--text3);margin-top:10px">* Estimates based on FICO 8 methodology. Actual results vary.</div>`;
 }
 </script>
-</body>
+<script>
+document.querySelector('[onclick="toggleNav()"]').addEventListener("click", function(){
+  var nav = document.getElementById("main-nav");
+  var main = document.querySelector("main");
+  var isHidden = nav.style.transform === "translateX(-220px)";
+  nav.style.transform = isHidden ? "" : "translateX(-220px)";
+  main.style.marginLeft = isHidden ? "220px" : "0";
+});
+</script></body>
 </html>
