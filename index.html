@@ -599,7 +599,20 @@ function showSection(id){
   }
 }
 
-function toggleNav(){var nav=document.getElementById("main-nav");var btn=document.getElementById("nav-toggle");var isHidden=nav.classList.toggle("hidden");document.querySelector("main").classList.toggle("full",isHidden);btn.innerHTML=isHidden?"&#9776;":"&#9776;";}
+function toggleNav(){
+  var nav=document.getElementById('main-nav');
+  var main=document.getElementById('main-content');
+  var btn=document.getElementById('hamburger');
+  if(nav.style.transform==='translateX(-100%)'){
+    nav.style.transform='';
+    main.style.marginLeft='220px';
+    btn.style.left='228px';
+  } else {
+    nav.style.transform='translateX(-100%)';
+    main.style.marginLeft='0';
+    btn.style.left='10px';
+  }
+}
 
 function updateScoreDisplay(){
   const s=parseInt(document.getElementById('score-input').value);
