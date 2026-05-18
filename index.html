@@ -532,6 +532,58 @@ select option{background:var(--bg3)}
 </div>
 
 <!-- RESOURCES -->
+
+<div id="sec-closed" class="section fade-up">
+  <div class="page-header"><div class="page-title">Closed Account Removal</div><div class="page-sub">Negative closed accounts can still be disputed</div></div>
+  <div class="tip-box"><strong>Key fact:</strong> Closed accounts with negative history stay on your report for 7 years from the date of first delinquency. You can dispute them at any time if the information is inaccurate.</div>
+  <div class="g2" style="margin-bottom:1rem">
+    <div class="card">
+      <div class="card-title">Types you can dispute</div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">Paid/Closed still showing balance</div><div class="factor-sub">Demand correction to /usr/bin/bash or deletion.</div></div><span class="badge badge-green">Easy win</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">Settled still showing charged off</div><div class="factor-sub">Demand status update to Settled.</div></div><span class="badge badge-green">Easy win</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">Wrong date of first delinquency</div><div class="factor-sub">Dispute the date to force earlier removal.</div></div><span class="badge badge-amber">Medium</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">Past 7 years - Must be removed</div><div class="factor-sub">Any negative item older than 7 years must be removed by law.</div></div><span class="badge badge-green">Must remove</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">Re-aging - Collector reset the date</div><div class="factor-sub">Illegal practice to keep old debt on your report longer.</div></div><span class="badge badge-red">FCRA violation</span></div>
+      <div class="factor-row"><div class="factor-info"><div class="factor-name">Duplicate closed accounts</div><div class="factor-sub">Same closed account reported by original creditor AND a collector.</div></div><span class="badge badge-amber">Medium</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Generate closed account dispute letter</div>
+      <label>Creditor / Account name</label><input type="text" id="ca-creditor" placeholder="Citibank, LVNV Funding, etc."/>
+      <label>Account number</label><input type="text" id="ca-acct" placeholder="****1234"/>
+      <label>Issue type</label>
+      <select id="ca-type">
+        <option value="balance">Paid/closed but still showing balance</option>
+        <option value="settled">Settled but still showing charged off</option>
+        <option value="wrong-date">Wrong date of first delinquency</option>
+        <option value="too-old">Past 7 years - must be removed</option>
+        <option value="reaging">Re-aging - date was illegally reset</option>
+        <option value="duplicate">Duplicate listing</option>
+        <option value="inaccurate">General inaccurate information</option>
+      </select>
+      <label>Date account closed (if known)</label><input type="text" id="ca-date" placeholder="MM/YYYY"/>
+      <label>Additional details</label><input type="text" id="ca-details" placeholder="e.g. Paid in full 2022..."/>
+      <button class="btn btn-primary" onclick="generateClosedLetter()">Generate Closed Account Letter</button>
+    </div>
+  </div>
+  <div class="card" id="closed-letter-card" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+      <div class="card-title" style="margin-bottom:0">Closed Account Dispute Letter</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-sm" onclick="copyClosedLetter()">Copy</button>
+        <button class="btn btn-sm btn-green" onclick="printClosedLetter()">Print / PDF</button>
+      </div>
+    </div>
+    <div id="closed-letter-body" class="letter-output"></div>
+  </div>
+  <div class="card" style="margin-top:1rem">
+    <div class="card-title">7-year removal date calculator</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Enter the date of first delinquency to find out when this account must be removed.</div>
+    <div class="g2">
+      <div><label>Date of first delinquency</label><input type="text" id="calc-date" placeholder="MM/YYYY"/><button class="btn btn-primary btn-sm" onclick="calcRemoval()">Calculate removal date</button></div>
+      <div id="calc-result" style="display:none;padding:1rem;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border2)"><div id="calc-output" style="font-size:13px;line-height:1.8"></div></div>
+    </div>
+  </div>
+</div>
 <div id="sec-resources" class="section fade-up">
   <div class="page-header">
     <div class="page-title">Laws & Resources</div>
@@ -1052,6 +1104,48 @@ function runSimulator(){
   document.getElementById('sim-results').style.display='block';
   document.getElementById('sim-output').innerHTML='<div class="metrics-grid" style="margin-bottom:1rem"><div class="metric-card red"><div class="metric-num">'+baseScore+'</div><div class="metric-lbl">Current score</div></div><div class="metric-card green"><div class="metric-num">+'+totalImpact+'</div><div class="metric-lbl">From removals</div></div><div class="metric-card blue"><div class="metric-num">'+projected+'</div><div class="metric-lbl">Projected score</div></div><div class="metric-card amber"><div class="metric-num">'+withUtil+'</div><div class="metric-lbl">+ Fix utilization</div></div></div><div class="score-track" style="margin-bottom:8px"><div class="score-fill" style="width:'+Math.round(((projected-300)/550)*100)+'%"></div></div><div style="font-size:13px;color:var(--text2);line-height:1.8">Removing <strong style="color:var(--text)">'+removed.length+' account'+(removed.length>1?'s':'')+'</strong> could bring your score to approximately <strong style="color:var(--green)">'+projected+'</strong>.'+(util>30?' Reducing utilization from <strong>'+util+'%</strong> to below 10% could add another <strong style="color:var(--amber)">~'+utilBonus+' points</strong>, bringing your total to <strong style="color:var(--accent2)">'+withUtil+'</strong>.':'')+(withUtil>=670?'<br><strong style="color:var(--green)">At 670+ you qualify for Good credit rates!</strong>':'')+'</div><div style="font-size:11px;color:var(--text3);margin-top:10px">* Estimates based on FICO 8 methodology.</div>';
 }
+
+function generateClosedLetter(){
+  var name=document.getElementById('your-name').value||'[Your Name]';
+  var addr=document.getElementById('your-addr').value||'[Your Address]';
+  var ssn=document.getElementById('your-ssn').value||'XXXX';
+  var dob=document.getElementById('your-dob').value||'[DOB]';
+  var creditor=document.getElementById('ca-creditor').value||'[Creditor]';
+  var acct=document.getElementById('ca-acct').value||'[Account]';
+  var type=document.getElementById('ca-type').value;
+  var date=document.getElementById('ca-date').value||'';
+  var details=document.getElementById('ca-details').value||'';
+  var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  var reasons={
+    'balance':'This account has been paid in full and closed'+(date?' as of '+date:'')+' yet your records continue to report an outstanding balance. Under the FCRA, all reported information must be accurate. I demand this account reflect a /usr/bin/bash balance and Paid/Closed status, or be deleted entirely.',
+    'settled':'This account was settled via written agreement'+(date?' in '+date:'')+'. Your records inaccurately report this as Charged Off. This constitutes a willful inaccuracy under 15 U.S.C. 1681s-2. I demand the status be corrected to Settled or the account deleted.',
+    'wrong-date':'The date of first delinquency reported is inaccurate. Under FCRA 605(c), the 7-year period begins from the date of first delinquency. The incorrect date extends reporting beyond what is legally permitted. I demand the date be corrected or account deleted.',
+    'too-old':'This account has exceeded the 7-year reporting period mandated by FCRA 605(a). Continued reporting is a violation of federal law. I demand immediate deletion.',
+    'reaging':'This account appears to have been re-aged. Re-aging violates FCRA 605(c) and the FDCPA. I demand the original date of first delinquency be restored and the account reviewed for immediate deletion.',
+    'duplicate':'This account is reported as a duplicate entry. The same debt appears under both the original creditor and a collection agency, violating FCRA 1681e(b). One entry must be removed immediately.',
+    'inaccurate':'The information reported for this closed account contains material inaccuracies including incorrect balance, payment history, account status, and/or dates.'
+  };
+  var lines=[name,addr,'SSN: ***-**-'+ssn+'     Date of Birth: '+dob,'Date: '+today,'','Equifax Information Services LLC, P.O. Box 740256, Atlanta, GA 30374','(Also send to: Experian P.O. Box 4500 Allen TX 75013 and TransUnion P.O. Box 2000 Chester PA 19016)','','RE: DISPUTE OF CLOSED ACCOUNT - REQUEST FOR CORRECTION OR DELETION','Creditor: '+creditor+' | Account: '+acct,'','To Whom It May Concern:','','I am writing pursuant to the Fair Credit Reporting Act, 15 U.S.C. 1681 et seq., to dispute the above-referenced closed account.','','NATURE OF DISPUTE:',(reasons[type]||reasons['inaccurate']),(details?'Additional Details: '+details:''),'','LEGAL DEMANDS:','You must conduct a reasonable investigation within 30 days per 15 U.S.C. 1681i(a)(1).','Delete this account if the information cannot be verified.','','Failure to comply may result in CFPB complaints and statutory damages per 15 U.S.C. 1681n.','','Sincerely,','','',name,'','Enclosures: Government-issued photo ID, Proof of address, Supporting documentation'];
+  document.getElementById('closed-letter-body').textContent=lines.join('
+');
+  document.getElementById('closed-letter-card').style.display='block';
+}
+function copyClosedLetter(){navigator.clipboard.writeText(document.getElementById('closed-letter-body').textContent);event.target.textContent='Copied!';setTimeout(function(){event.target.textContent='Copy';},2000);}
+function printClosedLetter(){var c=document.getElementById('closed-letter-body').textContent;var w=window.open('','_blank');w.document.write('<html><head><title>ScoreBoss Closed Account Dispute</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}</style></head><body>'+c+'</body></html>');w.document.close();w.print();}
+function calcRemoval(){
+  var input=document.getElementById('calc-date').value;
+  var parts=input.split('/');
+  if(parts.length!==2){alert('Please enter date as MM/YYYY');return;}
+  var removal=new Date(parseInt(parts[1])+7,parseInt(parts[0])-1,1);
+  var today=new Date();
+  var daysLeft=Math.ceil((removal-today)/(1000*60*60*24));
+  var output='';
+  if(daysLeft<=0){output='<strong style="color:var(--green)">This account MUST be removed NOW!</strong><br>It passed the 7-year removal date on '+removal.toLocaleDateString('en-US',{month:'long',year:'numeric'})+'. File a dispute immediately.';}
+  else{output='Mandatory removal date: <strong style="color:var(--amber)">'+removal.toLocaleDateString('en-US',{month:'long',year:'numeric'})+'</strong><br>Days until removal: <strong>'+daysLeft+' days</strong>'+(daysLeft<365?'<br><strong style="color:var(--amber)">Less than 1 year away - dispute now!</strong>':'');}
+  document.getElementById('calc-output').innerHTML=output;
+  document.getElementById('calc-result').style.display='block';
+}
+
 </script>
 </body>
 </html>
