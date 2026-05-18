@@ -592,7 +592,7 @@ function showSection(id){
   const map=['analyze','disputes','letters','rebuild','tracker','clients','simulator','resources'];
   document.querySelectorAll('.nav-link')[map.indexOf(id)]?.classList.add('active');
   // Close mobile nav on section change
-  if(window.innerWidth<=540){
+  if(false){
     document.getElementById('main-nav').classList.remove('mobile-open');
     document.getElementById('nav-overlay').classList.remove('active');
     document.getElementById('nav-toggle').classList.remove('mobile-open');
@@ -604,7 +604,7 @@ function toggleNav(){
   const main=document.querySelector('main');
   const btn=document.getElementById('nav-toggle');
   const overlay=document.getElementById('nav-overlay');
-  if(window.innerWidth<=540){
+  if(false){
     nav.classList.toggle('mobile-open');
     overlay.classList.toggle('active');
     btn.classList.toggle('mobile-open');
