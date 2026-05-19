@@ -833,7 +833,33 @@ function copyLetter(){
 function printLetter(){
   var content=document.getElementById('letter-body').textContent;
   var w=window.open('','_blank');
-  w.document.write('<html><head><title>ScoreBoss Dispute Letter</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}@media print{body{margin:40px}}</style></head><body>'+content+'</body></html>');
+  w.document.write('<html><head><title>ScoreBoss Dispute Letter</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}@media print{body{margin:40px}}</style></head><body>'+content+'
+<div id='sb-login' style='display:none;position:fixed;inset:0;background:#0a0e1a;z-index:9999;align-items:center;justify-content:center;flex-direction:column'>
+  <div style='background:#111827;border:1px solid rgba(255,255,255,0.14);border-radius:16px;padding:2.5rem;width:340px;text-align:center'>
+    <div style='font-family:Georgia,serif;font-size:2rem;color:#f0f4ff;margin-bottom:4px'>ScoreBoss</div>
+    <div style='font-size:11px;color:#5a7099;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem'>Hit Hard. Dispute Fast. Win.</div>
+    <input type='password' id='sb-pass' placeholder='Enter password' style='text-align:center;width:100%;background:#1a2235;border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:9px 12px;color:#f0f4ff;font-size:16px;outline:none;margin-bottom:12px'/>
+    <div id='sb-err' style='color:#f25757;font-size:12px;margin-bottom:8px;display:none'>Incorrect password.</div>
+    <button onclick='sbLogin()' style='width:100%;background:#4f8ef7;border:none;border-radius:10px;padding:10px;color:#fff;font-size:14px;cursor:pointer'>Enter Dashboard</button>
+  </div>
+</div>
+<script>
+var SBP='YOUR_PASSWORD_HERE';
+function sbLogin(){
+  if(document.getElementById('sb-pass').value===SBP){
+    localStorage.setItem('sb_ok','1');
+    document.getElementById('sb-login').style.display='none';
+  } else {
+    document.getElementById('sb-err').style.display='block';
+    document.getElementById('sb-pass').value='';
+  }
+}
+document.getElementById('sb-pass').addEventListener('keydown',function(e){if(e.key==='Enter')sbLogin();});
+if(localStorage.getItem('sb_ok')!=='1'){
+  document.getElementById('sb-login').style.display='flex';
+}
+</script>
+</body></html>');
   w.document.close();w.print();
 }
 
@@ -869,7 +895,33 @@ async function mailLetter(){
   var mailBtn=document.getElementById('mail-btn');
   mailBtn.disabled=true;mailBtn.textContent='Sending…';
   try{
-    var letterHtml='<html><body style="font-family:Georgia,serif;font-size:12px;line-height:1.8;margin:60px 80px;white-space:pre-wrap">'+letterText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</body></html>';
+    var letterHtml='<html><body style="font-family:Georgia,serif;font-size:12px;line-height:1.8;margin:60px 80px;white-space:pre-wrap">'+letterText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'
+<div id='sb-login' style='display:none;position:fixed;inset:0;background:#0a0e1a;z-index:9999;align-items:center;justify-content:center;flex-direction:column'>
+  <div style='background:#111827;border:1px solid rgba(255,255,255,0.14);border-radius:16px;padding:2.5rem;width:340px;text-align:center'>
+    <div style='font-family:Georgia,serif;font-size:2rem;color:#f0f4ff;margin-bottom:4px'>ScoreBoss</div>
+    <div style='font-size:11px;color:#5a7099;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem'>Hit Hard. Dispute Fast. Win.</div>
+    <input type='password' id='sb-pass' placeholder='Enter password' style='text-align:center;width:100%;background:#1a2235;border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:9px 12px;color:#f0f4ff;font-size:16px;outline:none;margin-bottom:12px'/>
+    <div id='sb-err' style='color:#f25757;font-size:12px;margin-bottom:8px;display:none'>Incorrect password.</div>
+    <button onclick='sbLogin()' style='width:100%;background:#4f8ef7;border:none;border-radius:10px;padding:10px;color:#fff;font-size:14px;cursor:pointer'>Enter Dashboard</button>
+  </div>
+</div>
+<script>
+var SBP='YOUR_PASSWORD_HERE';
+function sbLogin(){
+  if(document.getElementById('sb-pass').value===SBP){
+    localStorage.setItem('sb_ok','1');
+    document.getElementById('sb-login').style.display='none';
+  } else {
+    document.getElementById('sb-err').style.display='block';
+    document.getElementById('sb-pass').value='';
+  }
+}
+document.getElementById('sb-pass').addEventListener('keydown',function(e){if(e.key==='Enter')sbLogin();});
+if(localStorage.getItem('sb_ok')!=='1'){
+  document.getElementById('sb-login').style.display='flex';
+}
+</script>
+</body></html>';
     var res=await fetch('https://api.lob.com/v1/letters',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(lobKey+':')},body:JSON.stringify({description:'Dispute Letter — '+creditor+' — '+bureauKey,to:{name:toAddr.name,address_line1:toAddr.address,address_city:toAddr.city,address_state:toAddr.state,address_zip:toAddr.zip,address_country:'US'},from:{name:name,address_line1:street,address_city:city,address_state:state,address_zip:zip,address_country:'US'},file:letterHtml,color:false,double_sided:false,address_placement:'top_first_page'})});
     var data=await res.json();
     if(data.id){var isTest=lobKey.startsWith('test_');alert('Letter '+(isTest?'(TEST MODE) ':'')+'queued!\n\nLob ID: '+data.id+'\nTo: '+toAddr.name+'\n'+(isTest?'Test mode — no real letter sent.':'Expected delivery: 3-5 business days'));mailBtn.textContent='Mailed!';addToLog();}
@@ -1048,6 +1100,32 @@ function runSimulator(){
   var withUtil=Math.min(850,projected+utilBonus);
   document.getElementById('sim-results').style.display='block';
   document.getElementById('sim-output').innerHTML='<div class="metrics-grid" style="margin-bottom:1rem"><div class="metric-card red"><div class="metric-num">'+baseScore+'</div><div class="metric-lbl">Current score</div></div><div class="metric-card green"><div class="metric-num">+'+totalImpact+'</div><div class="metric-lbl">From removals</div></div><div class="metric-card blue"><div class="metric-num">'+projected+'</div><div class="metric-lbl">Projected score</div></div><div class="metric-card amber"><div class="metric-num">'+withUtil+'</div><div class="metric-lbl">+ Fix utilization</div></div></div><div class="score-track" style="margin-bottom:8px"><div class="score-fill" style="width:'+Math.round(((projected-300)/550)*100)+'%"></div></div><div style="font-size:13px;color:var(--text2);line-height:1.8">Removing <strong style="color:var(--text)">'+removed.length+' account'+(removed.length>1?'s':'')+'</strong> could bring your score to approximately <strong style="color:var(--green)">'+projected+'</strong>.'+(util>30?' Reducing utilization from <strong>'+util+'%</strong> to below 10% could add another <strong style="color:var(--amber)">~'+utilBonus+' points</strong>, bringing your total to <strong style="color:var(--accent2)">'+withUtil+'</strong>.':'')+(withUtil>=670?'<br><strong style="color:var(--green)">At 670+ you qualify for Good credit rates!</strong>':'')+'</div><div style="font-size:11px;color:var(--text3);margin-top:10px">* Estimates based on FICO 8 methodology.</div>';
+}
+</script>
+
+<div id='sb-login' style='display:none;position:fixed;inset:0;background:#0a0e1a;z-index:9999;align-items:center;justify-content:center;flex-direction:column'>
+  <div style='background:#111827;border:1px solid rgba(255,255,255,0.14);border-radius:16px;padding:2.5rem;width:340px;text-align:center'>
+    <div style='font-family:Georgia,serif;font-size:2rem;color:#f0f4ff;margin-bottom:4px'>ScoreBoss</div>
+    <div style='font-size:11px;color:#5a7099;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem'>Hit Hard. Dispute Fast. Win.</div>
+    <input type='password' id='sb-pass' placeholder='Enter password' style='text-align:center;width:100%;background:#1a2235;border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:9px 12px;color:#f0f4ff;font-size:16px;outline:none;margin-bottom:12px'/>
+    <div id='sb-err' style='color:#f25757;font-size:12px;margin-bottom:8px;display:none'>Incorrect password.</div>
+    <button onclick='sbLogin()' style='width:100%;background:#4f8ef7;border:none;border-radius:10px;padding:10px;color:#fff;font-size:14px;cursor:pointer'>Enter Dashboard</button>
+  </div>
+</div>
+<script>
+var SBP='YOUR_PASSWORD_HERE';
+function sbLogin(){
+  if(document.getElementById('sb-pass').value===SBP){
+    localStorage.setItem('sb_ok','1');
+    document.getElementById('sb-login').style.display='none';
+  } else {
+    document.getElementById('sb-err').style.display='block';
+    document.getElementById('sb-pass').value='';
+  }
+}
+document.getElementById('sb-pass').addEventListener('keydown',function(e){if(e.key==='Enter')sbLogin();});
+if(localStorage.getItem('sb_ok')!=='1'){
+  document.getElementById('sb-login').style.display='flex';
 }
 </script>
 </body>
