@@ -802,7 +802,7 @@ function showSection(id){
   document.querySelectorAll('.nav-link').forEach(function(l){l.classList.remove('active');});
   document.getElementById('sec-'+id).classList.add('active');
   if(id==='clients')renderReminders();
-  var map=['analyze','disputes','letters','rebuild','tracker','clients','simulator','pfd','address','closed','resources'];
+  var map=['analyze','disputes','letters','rebuild','tracker','clients','simulator','address','closed','resources'];
   var idx=map.indexOf(id);
   if(idx>=0)document.querySelectorAll('.nav-link')[idx].classList.add('active');
   // Close nav on mobile after selecting
