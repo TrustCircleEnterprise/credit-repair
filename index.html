@@ -1107,7 +1107,7 @@ async function processFile(file){
       for(var i=0;i<pdfData.length;i++)pdfBytes[i]=pdfData.charCodeAt(i);
       if(!window.pdfjsLib){await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}
       var pdf=await window.pdfjsLib.getDocument({data:pdfBytes}).promise;
-      var numPages=Math.min(pdf.numPages,6);
+      var numPages=pdf.numPages;
       statusEl.innerHTML='<div class="upload-loading"><div class="dot-flashing"></div> Converting '+numPages+' page(s)…</div>';
       for(var pageNum=1;pageNum<=numPages;pageNum++){
         var page=await pdf.getPage(pageNum);
