@@ -191,11 +191,28 @@ select option{background:var(--bg3)}
   .card{padding:0.875rem}
   .factor-bar-wrap{display:none}
 }
+
+#login-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
+#login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:2.5rem;width:100%;max-width:360px;text-align:center}
+#login-logo{font-family:Georgia,serif;font-size:2rem;color:#f0f4ff;margin-bottom:4px}
+#login-sub{font-size:11px;color:#5a7099;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem}
+#login-error{color:#f25757;font-size:12px;margin-top:8px;display:none}
 </style>
 </head>
 <body>
 
 <!-- NAV OVERLAY -->
+
+<div id="login-screen">
+  <div id="login-box">
+    <div id="login-logo">ScoreBoss</div>
+    <div id="login-sub">Hit Hard. Dispute Fast. Win.</div>
+    <label>Password</label>
+    <input type="password" id="login-input" placeholder="Enter password" onkeydown="if(event.key==='Enter ')doLogin()" style="text-align:center;margin-bottom:12px"/>
+    <div id="login-error">Incorrect password. Try again.</div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" onclick="doLogin()">Enter Dashboard</button>
+  </div>
+</div>
 <div id="nav-overlay" onclick="closeNav()"></div>
 
 <!-- HAMBURGER BUTTON -->
@@ -889,7 +906,13 @@ function copyLetter(){
 function printLetter(){
   var content=document.getElementById('letter-body').textContent;
   var w=window.open('','_blank');
-  w.document.write('<html><head><title>ScoreBoss Dispute Letter</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}@media print{body{margin:40px}}</style></head><body>'+content+'</body></html>');
+  w.document.write('<html><head><title>ScoreBoss Dispute Letter</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}@media print{body{margin:40px}}
+#login-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
+#login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:2.5rem;width:100%;max-width:360px;text-align:center}
+#login-logo{font-family:Georgia,serif;font-size:2rem;color:#f0f4ff;margin-bottom:4px}
+#login-sub{font-size:11px;color:#5a7099;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem}
+#login-error{color:#f25757;font-size:12px;margin-top:8px;display:none}
+</style></head><body>'+content+'</body></html>');
   w.document.close();w.print();
 }
 
@@ -1140,7 +1163,13 @@ function copyClosedLetter(){
 function printClosedLetter(){
   var content=document.getElementById('closed-letter-body').textContent;
   var w=window.open('','_blank');
-  w.document.write('<html><head><title>ScoreBoss Closed Account Dispute</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}</style></head><body>'+content+'</body></html>');
+  w.document.write('<html><head><title>ScoreBoss Closed Account Dispute</title><style>body{font-family:Georgia,serif;max-width:700px;margin:60px auto;line-height:1.8;font-size:14px;white-space:pre-wrap}
+#login-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center}
+#login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:2.5rem;width:100%;max-width:360px;text-align:center}
+#login-logo{font-family:Georgia,serif;font-size:2rem;color:#f0f4ff;margin-bottom:4px}
+#login-sub{font-size:11px;color:#5a7099;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2rem}
+#login-error{color:#f25757;font-size:12px;margin-top:8px;display:none}
+</style></head><body>'+content+'</body></html>');
   w.document.close();
   w.print();
 }
@@ -1163,6 +1192,25 @@ function calcRemoval(){
   document.getElementById('calc-result').style.display='block';
 }
 
+
+var SITE_PASS ='YOUR_PASSWORD_HERE';
+function doLogin(){
+  var entered = document.getElementById('login-input').value;
+  if(entered === SITE_PASS){
+    localStorage.setItem('sb_auth','1');
+    document.getElementById('login-screen').style.display='none';
+  } else {
+    document.getElementById('login-error').style.display='block';
+    document.getElementById('login-input').value= '';
+    document.getElementById('login-input').focus();
+  }
+}
+(function(){
+  if(localStorage.getItem('sb_auth')==='1'){
+    var ls=document.getElementById('login-screen');
+    if(ls)ls.style.display='none';
+  }
+})();
 </script>
 </body>
 </html>
