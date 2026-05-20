@@ -1108,7 +1108,7 @@ async function processFile(file){
         messageContent.push({type:'image',source:{type:'base64',media_type:'image/jpeg',data:canvas.toDataURL('image/jpeg',0.85).split(',')[1]}});
       }
     }else{messageContent.push({type:'image',source:{type:'base64',media_type:file.type,data:await fileToBase64(file)}});}
-    messageContent.push({type:'text',text:'You are a credit report analyst. Extract ALL negative accounts from this credit report. For each, output one line: Creditor Name, #AccountNumber, $Balance, Status\n\nOnly output these lines, nothing else. If no negatives found, output: NO_NEGATIVES_FOUND'});
+    messageContent.push({type:'text',text:'You are a credit report data extractor. Extract ALL negative accounts and output ONLY in this exact CSV format, one per line:\nCreditor Name, #AccountNumber, $Balance, Status\n\nCritical rules:\n1. Negative accounts = collections, charge-offs, late payments, repossessions, judgments, bankruptcies\n2. NEVER use commas inside any field value - remove commas from dollar amounts ($12456 not $12,456)\n3. Output ONLY the data lines - no explanations, headers, notes or summaries\n4. If no negatives found output exactly: NO_NEGATIVES_FOUND'});
     statusEl.innerHTML='<div class="upload-loading"><div class="dot-flashing"></div> AI analyzing your report…</div>';
     var PROXY='https://muddy-frost-3757.trustcircleenterprise.workers.dev/';
     var res=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,messages:[{role:'user',content:messageContent}]})});
