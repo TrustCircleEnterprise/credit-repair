@@ -885,7 +885,7 @@ function analyzeReport(){
   document.getElementById('m-potential').textContent='+'+(easy*18+med*10+accounts.filter(function(a){return a.p===3;}).length*6);
   document.getElementById('accounts-list').innerHTML=accounts.map(function(a,i){
     var c=a.color==='green'?'green':a.color==='amber'?'amber':'red';
-    return '<div class="account-row"><div class="account-num">'+(i+1)+'</div><div class="priority-dot dot-'+c+'"></div><div class="account-info"><div class="account-name">'+a.creditor+' <span style="color:var(--text3);font-weight:400;font-size:12px">'+a.acct+'</span></div><div class="account-sub">'+a.status+' &middot; '+a.amount+' &mdash; '+a.reason+'</div></div><span class="badge badge-'+c+'">'+a.badge+'</span><button class="btn btn-sm" onclick="prefill(\''+esc(a.creditor)+'\',\''+esc(a.acct)+'\',\''+esc(a.status)+'\',\''+esc(a.amount)+'\',\''+a.disputeType+'\')">Draft letter</button></div>';
+    return '<div class="account-row"><div class="account-num">'+(i+1)+'</div><div class="priority-dot dot-'+c+'"></div><div class="account-info"><div class="account-name">'+a.creditor+' <span style="color:var(--text3);font-weight:400;font-size:12px">'+a.acct+'</span></div><div class="account-sub">'+a.status+' &middot; '+a.amount+' &mdash; '+a.reason+'</div></div><span class="badge badge-'+c+'">'+a.badge+'</span><button class="btn btn-sm" onclick="prefill(\''+esc(a.creditor)+'\',\''+esc(a.acct)+'\',\''+esc(a.status)+'\',\''+esc(a.amount)+'\',\''+a.disputeType+'\')";showSection(\'letters\');">Draft letter</button></div>';
   }).join('');
   document.getElementById('analysis-out').style.display='block';
 }
