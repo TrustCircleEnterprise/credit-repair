@@ -233,6 +233,12 @@ select option{background:var(--bg3)}
     <button class="nav-link" onclick="showSection('resources')">
       <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z"/><path d="M8 7v4M8 5.5v.5"/></svg>Resources & Laws
     </button>
+    <button class="nav-link" onclick="showSection('address')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a3 3 0 100 6 3 3 0 000-6z"/><path d="M8 8C5.8 8 4 10 4 12h8c0-2-1.8-4-4-4z"/></svg>Address Removal
+    </button>
+    <button class="nav-link" onclick="showSection('closed')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8h6"/></svg>Closed Accounts
+    </button>
   </div>
   <div class="nav-score-card">
     <div class="nav-score-num" id="nav-score-display">561</div>
@@ -881,7 +887,7 @@ function analyzeReport(){
   document.getElementById('m-potential').textContent='+'+(easy*18+med*10+accounts.filter(function(a){return a.p===3;}).length*6);
   document.getElementById('accounts-list').innerHTML=accounts.map(function(a,i){
     var c=a.color==='green'?'green':a.color==='amber'?'amber':'red';
-    return '<div class="account-row"><div class="account-num">'+(i+1)+'</div><div class="priority-dot dot-'+c+'"></div><div class="account-info"><div class="account-name">'+a.creditor+' <span style="color:var(--text3);font-weight:400;font-size:12px">'+a.acct+'</span></div><div class="account-sub">'+a.status+' &middot; '+a.amount+' &mdash; '+a.reason+'</div></div><span class="badge badge-'+c+'">'+a.badge+'</span><button class="btn btn-sm" onclick="prefill(\''+esc(a.creditor)+'\',\''+esc(a.acct)+'\',\''+esc(a.status)+'\',\''+esc(a.amount)+'\',\''+a.disputeType+'\')">Draft letter</button></div>';
+    return '<div class="account-row"><div class="account-num">'+(i+1)+'</div><div class="priority-dot dot-'+c+'"></div><div class="account-info"><div class="account-name">'+a.creditor+' <span style="color:var(--text3);font-weight:400;font-size:12px">'+a.acct+'</span></div><div class="account-sub">'+a.status+' &middot; '+a.amount+' &mdash; '+a.reason+'</div></div><span class="badge badge-'+c+'">'+a.badge+'</span><button class="btn btn-sm" onclick="prefill(\''+esc(a.creditor)+'\',\''+esc(a.acct)+'\',\''+esc(a.status)+'\',\''+esc(a.amount)+'\',\''+a.disputeType+'\');showSection(\'letters\')">Draft letter</button></div>';
   }).join('');
   document.getElementById('analysis-out').style.display='block';
 }
@@ -900,7 +906,7 @@ function buildQueue(){
     html+='<div class="wave-header"><span class="badge badge-'+colors[p]+'">'+titles[p]+'</span><div class="wave-line"></div></div>';
     html+='<div class="card" style="padding:0.5rem 1rem;margin-bottom:0.5rem">';
     waves[p].forEach(function(a){
-      html+='<div class="account-row"><div class="account-info"><div class="account-name">'+a.creditor+' <span style="color:var(--text3);font-size:12px">'+a.acct+'</span></div><div class="account-sub">'+a.status+' &middot; '+a.amount+'</div></div><button class="btn btn-sm" onclick="prefill(\''+esc(a.creditor)+'\',\''+esc(a.acct)+'\',\''+esc(a.status)+'\',\''+esc(a.amount)+'\',\''+a.disputeType+'\');showSection(\'letters\')">Draft letter</button></div>';
+      html+='<div class="account-row"><div class="account-info"><div class="account-name">'+a.creditor+' <span style="color:var(--text3);font-size:12px">'+a.acct+'</span></div><div class="account-sub">'+a.status+' &middot; '+a.amount+'</div></div><button class="btn btn-sm" onclick="prefill(\''+esc(a.creditor)+'\',\''+esc(a.acct)+'\',\''+esc(a.status)+'\',\''+esc(a.amount)+'\',\''+a.disputeType+'\');showSection(\'letters\');showSection(\'letters\')">Draft letter</button></div>';
     });
     html+='</div>';
   });
