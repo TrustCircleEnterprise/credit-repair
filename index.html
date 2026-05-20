@@ -230,12 +230,8 @@ select option{background:var(--bg3)}
     <button class="nav-link" onclick="showSection('simulator')">
       <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="2,12 5,7 8,9 11,5 14,3"/><path d="M14 3v4M14 3h-4"/></svg>Score Simulator
     </button>
-    <button class="nav-link" onclick="showSection('address')">
-      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z"/><path d="M8 7v4M8 5.5v.5"/></svg>Address Removal
-    </button>
-    <button class="nav-link" onclick="showSection('closed')"><svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8h6"/></svg>Closed Accounts
-    </button>
-    <button class="nav-link" onclick="showSection('resources')"><svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z"/><path d="M8 7v4M8 5.5v.5"/></svg>Resources & Laws
+    <button class="nav-link" onclick="showSection('resources')">
+      <svg class="icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z"/><path d="M8 7v4M8 5.5v.5"/></svg>Resources & Laws
     </button>
   </div>
   <div class="nav-score-card">
@@ -839,7 +835,7 @@ function autoLoadReport(){
   document.getElementById('your-addr').value='5000 Macland Rd, Powder Springs, GA 30127';
   document.getElementById('your-dob').value='03/13/1983';
   document.getElementById('l-name').value='Makisha Stiles';
-  document.getElementById('l-addr').value='5000 Macland Rd, Powder Springs, GA 30127';document.getElementById('l-dob').value='03/13/1983';document.getElementById('l-ssn').value='';document.getElementById('l-dob').value='01/01/1983';document.getElementById('l-ssn').value='';
+  document.getElementById('l-addr').value='5000 Macland Rd, Powder Springs, GA 30127';
   updateScoreDisplay();
   document.getElementById('upload-status').style.display='block';
   document.getElementById('upload-status').innerHTML='<div class="upload-success"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,8 6,11 13,4"/></svg> Experian report (May 4, 2026) pre-loaded! Click <strong>Analyze My Report</strong>.</div>';
@@ -885,7 +881,7 @@ function analyzeReport(){
   document.getElementById('m-potential').textContent='+'+(easy*18+med*10+accounts.filter(function(a){return a.p===3;}).length*6);
   document.getElementById('accounts-list').innerHTML=accounts.map(function(a,i){
     var c=a.color==='green'?'green':a.color==='amber'?'amber':'red';
-    return '<div class="account-row"><div class="account-num">'+(i+1)+'</div><div class="priority-dot dot-'+c+'"></div><div class="account-info"><div class="account-name">'+a.creditor+' <span style="color:var(--text3);font-weight:400;font-size:12px">'+a.acct+'</span></div><div class="account-sub">'+a.status+' &middot; '+a.amount+' &mdash; '+a.reason+'</div></div><span class="badge badge-'+c+'">'+a.badge+'</span><button class="btn btn-sm" onclick="prefill(\''+esc(a.creditor)+'\',\''+esc(a.acct)+'\',\''+esc(a.status)+'\',\''+esc(a.amount)+'\',\''+a.disputeType+'\')";showSection(\'letters\');">Draft letter</button></div>';
+    return '<div class="account-row"><div class="account-num">'+(i+1)+'</div><div class="priority-dot dot-'+c+'"></div><div class="account-info"><div class="account-name">'+a.creditor+' <span style="color:var(--text3);font-weight:400;font-size:12px">'+a.acct+'</span></div><div class="account-sub">'+a.status+' &middot; '+a.amount+' &mdash; '+a.reason+'</div></div><span class="badge badge-'+c+'">'+a.badge+'</span><button class="btn btn-sm" onclick="prefill(\''+esc(a.creditor)+'\',\''+esc(a.acct)+'\',\''+esc(a.status)+'\',\''+esc(a.amount)+'\',\''+a.disputeType+'\')">Draft letter</button></div>';
   }).join('');
   document.getElementById('analysis-out').style.display='block';
 }
@@ -1033,7 +1029,7 @@ async function mailLetter(){
   mailBtn.disabled=true;mailBtn.textContent='Sending…';
   try{
     var letterHtml='<html><body style="font-family:Georgia,serif;font-size:12px;line-height:1.8;margin:60px 80px;white-space:pre-wrap">'+letterText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</body></html>';
-    var res=await fetch('https://api.lob.com/v1/letters',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(lobKey+':')},body:JSON.stringify({description:'Dispute Letter — '+creditor+' — '+bureauKey,to:{name:toAddr.name,address_line1:toAddr.address,address_city:toAddr.city,address_state:toAddr.state,address_zip:toAddr.zip,address_country:'US'},from:{name:name,address_line1:street,address_city:city,address_state:state,address_zip:zip,address_country:'US'},file:letterHtml,mail_type:"usps_certified",color:false,double_sided:false,address_placement:'top_first_page'})});
+    var res=await fetch('https://api.lob.com/v1/letters',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(lobKey+':')},body:JSON.stringify({description:'Dispute Letter — '+creditor+' — '+bureauKey,to:{name:toAddr.name,address_line1:toAddr.address,address_city:toAddr.city,address_state:toAddr.state,address_zip:toAddr.zip,address_country:'US'},from:{name:name,address_line1:street,address_city:city,address_state:state,address_zip:zip,address_country:'US'},file:letterHtml,color:false,double_sided:false,address_placement:'top_first_page'})});
     var data=await res.json();
     if(data.id){var isTest=lobKey.startsWith('test_');alert('Letter '+(isTest?'(TEST MODE) ':'')+'queued!\n\nLob ID: '+data.id+'\nTo: '+toAddr.name+'\n'+(isTest?'Test mode — no real letter sent.':'Expected delivery: 3-5 business days'));mailBtn.textContent='Mailed!';addToLog();}
     else{alert('Lob error: '+(data.error&&data.error.message?data.error.message:JSON.stringify(data)));mailBtn.disabled=false;mailBtn.textContent='Mail ($1.20)';}
