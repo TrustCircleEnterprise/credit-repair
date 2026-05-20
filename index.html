@@ -836,12 +836,12 @@ function syncPersonalInfo(){
 function autoLoadReport(){
   var accts='Spring Oaks Capital LLC,#110712XXX,$623,Collections\nMidland Credit Management,#328590XXX,$753,Collections\nKikoff Lending LLC,#CLXXXX,$420,Late Payment 60 days\nMerrick Bank Corp,#546316XXXXXX,$1645,Charged Off\nMission Lane TAB Bank,#431503XXXXXX,$1624,Charged Off\nAffirm Inc,#MPDUTJXX,$0,Charged Off - Paid in Settlement\nNCB Management Service,#101073XXXX,$12456,Collections\nExeter Finance LLC,#680681XXXXXX,$0,Charged Off - Repossession\nOneMain,#719322XXXXXX,$0,Charged Off - Paid in Settlement';
   document.getElementById('report-input').value=accts;
-  document.getElementById('score-input').value=561;
-  document.getElementById('your-name').value='Makisha Stiles';
-  document.getElementById('your-addr').value='5000 Macland Rd, Powder Springs, GA 30127';
-  document.getElementById('your-dob').value='03/13/1983';
-  document.getElementById('l-name').value='Makisha Stiles';
-  document.getElementById('l-addr').value='5000 Macland Rd, Powder Springs, GA 30127';
+  document.getElementById('score-input').value='';
+  document.getElementById('your-name').value='';
+  document.getElementById('your-addr').value='';
+  document.getElementById('your-dob').value='';
+  document.getElementById('l-name').value='';
+  document.getElementById('l-addr').value='';
   updateScoreDisplay();
   document.getElementById('upload-status').style.display='block';
   document.getElementById('upload-status').innerHTML='<div class="upload-success"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,8 6,11 13,4"/></svg> Experian report (May 4, 2026) pre-loaded! Click <strong>Analyze My Report</strong>.</div>';
