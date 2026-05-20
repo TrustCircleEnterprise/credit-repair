@@ -1116,7 +1116,7 @@ async function processFile(file){
     if(data.content&&data.content[0]){
       var text=data.content[0].text.trim();
       if(text==='NO_NEGATIVES_FOUND'){statusEl.innerHTML='<div class="upload-success">No negative accounts found! Great news.</div>';}
-      else{document.getElementById('report-input').value=text;var count=text.split('\n').filter(function(l){return l.trim();}).length;statusEl.innerHTML='<div class="upload-success">Found <strong>'+count+' negative account'+(count!==1?'s':'')+'</strong> — review below then click Analyze.</div>';}
+      else{document.getElementById('report-input').value=text;var cleaned=text.replace(/\\,(\d)/g,'\\$\');var count=cleaned.split('\n').filter(function(l){return l.trim();}).length;text=cleaned;statusEl.innerHTML='<div class="upload-success">Found <strong>'+count+' negative account'+(count!==1?'s':'')+'</strong> — review below then click Analyze.</div>';}
     }else{statusEl.innerHTML='<div class="upload-error">Could not read file. Try a clearer image or paste manually.</div>';}
   }catch(err){statusEl.innerHTML='<div class="upload-error">Error: '+err.message+'</div>';}
   document.getElementById('analyze-btn').disabled=false;
